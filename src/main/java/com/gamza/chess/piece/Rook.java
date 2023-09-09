@@ -5,13 +5,16 @@ import com.gamza.chess.Enum.Color;
 import java.util.List;
 import java.util.Map;
 
-public class Rook extends Piece{
-    public Rook(int id, Color color, int x, int y) {
-        super(id, color, x, y);
+public class Rook extends Piece {
+    private boolean hasMoved;
+
+    public Rook(int id, int x, int y) {
+        super(id, x, y);
+        this.hasMoved = false;
     }
 
     @Override
-    public List<Map<Integer, Integer>> validMoveList() {
+    public List<Map<Integer, Integer>> getValidMoveList() {
         return null;
     }
 
@@ -22,17 +25,6 @@ public class Rook extends Piece{
 
     @Override
     public void move(int x, int y) {
-        this.x = x;
-        this.y = y;
-    }
-
-    @Override
-    public void live() {
-        this.live = false;
-    }
-
-    @Override
-    public void attack(Piece target) {
 
     }
 }

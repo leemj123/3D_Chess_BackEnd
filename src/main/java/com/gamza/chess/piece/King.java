@@ -6,14 +6,15 @@ import java.util.List;
 import java.util.Map;
 
 public class King extends Piece{
-    private boolean hasMoved = false; //캐슬링 체크용
+    private boolean hasMoved; //캐슬링 체크용
 
-    public King(int id, Color color, int x, int y) {
-        super(id, color, x, y);
+    public King(int id, int x, int y) {
+        super(id, x, y);
+        this.hasMoved = false;
     }
 
     @Override
-    public List<Map<Integer, Integer>> validMoveList() {
+    public List<Map<Integer, Integer>> getValidMoveList() {
         return null;
     }
 
@@ -24,18 +25,8 @@ public class King extends Piece{
 
     @Override
     public void move(int x, int y) {
-        this.x = x;
-        this.y = y;
-
+        this.hasMoved = true;
     }
 
-    @Override
-    public void live() {
 
-    }
-
-    @Override
-    public void attack(Piece target) {
-
-    }
 }

@@ -13,17 +13,11 @@ public class ChessBoardSetting {
 
         for (int y = 0; y < MaxOfY; y++) {
             switch (y) {
-                case 0:
-                    board[y] = setFirstLineOfPiece(MaxOfX, y, Color.White);
+                case 0: case 7:
+                    board[y] = setFirstLineOfPiece(MaxOfX, y);
                     break;
-                case 1:
-                    board[y] = setSceondLineOfPiece(MaxOfX, y, Color.White);
-                    break;
-                case 6:
-                    board[y] = setSceondLineOfPiece(MaxOfX, y, Color.Black);
-                    break;
-                case 7:
-                    board[y] = setFirstLineOfPiece(MaxOfX, y, Color.Black);
+                case 1: case 6:
+                    board[y] = setSceondLineOfPiece(MaxOfX, y);
                     break;
                 case 2: case 3: case 4: case 5:
                     break;
@@ -33,29 +27,29 @@ public class ChessBoardSetting {
         return board;
     }
 
-    private Piece[] setFirstLineOfPiece(int MaxOfX,int currentY, Color color) {
+    private Piece[] setFirstLineOfPiece(int MaxOfX,int currentY) {
         Piece[] pieces = new Piece[MaxOfX];
 
         for (int x = 0; x < pieces.length; x++) {
             switch (x) {
                 case 0: case 7:
-                    pieces[x] = new Rook(Piece_Id_Count,color,x,currentY);
+                    pieces[x] = new Rook(Piece_Id_Count,x,currentY);
                     Piece_Id_Count++;
                     break;
                 case 1: case 6:
-                    pieces[x] = new Knight(Piece_Id_Count,color,x,currentY);
+                    pieces[x] = new Knight(Piece_Id_Count,x,currentY);
                     Piece_Id_Count++;
                     break;
                 case 2: case 5:
-                    pieces[x] = new Bishop(Piece_Id_Count,color,x,currentY);
+                    pieces[x] = new Bishop(Piece_Id_Count,x,currentY);
                     Piece_Id_Count++;
                     break;
                 case 3:
-                    pieces[x] = new Queen(Piece_Id_Count,color,x,currentY);
+                    pieces[x] = new Queen(Piece_Id_Count,x,currentY);
                     Piece_Id_Count++;
                     break;
                 case 4:
-                    pieces[x] = new King(Piece_Id_Count,color,x,currentY);
+                    pieces[x] = new King(Piece_Id_Count,x,currentY);
                     Piece_Id_Count++;
                     break;
             }
@@ -63,11 +57,11 @@ public class ChessBoardSetting {
         return pieces;
     }
 
-    private Piece[] setSceondLineOfPiece(int MaxOfX,int currentY,Color color) {
+    private Piece[] setSceondLineOfPiece(int MaxOfX,int currentY ) {
         Piece[] pieces = new Piece[MaxOfX];
 
         for (int x=0; x < MaxOfX; x++) {
-            pieces[x] = new Pawn(Piece_Id_Count,color,x,currentY);
+            pieces[x] = new Pawn(Piece_Id_Count,x,currentY);
             Piece_Id_Count++;
         }
         return pieces;

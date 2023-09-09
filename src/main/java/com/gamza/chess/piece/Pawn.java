@@ -8,14 +8,15 @@ import java.util.Map;
 
 @Getter
 public class Pawn extends Piece{
+    private boolean hasMoved;
 
-
-    public Pawn(int id, Color color, int x, int y) {
-        super(id, color, x, y);
+    public Pawn(int id, int x, int y) {
+        super(id, x, y);
+        this.hasMoved = false;
     }
 
     @Override
-    public List<Map<Integer, Integer>> validMoveList() {
+    public List<Map<Integer, Integer>> getValidMoveList() {
         return null;
     }
 
@@ -24,28 +25,12 @@ public class Pawn extends Piece{
         return false;
     }
 
+
     @Override
     public void move(int x, int y) {
         this.x = x;
         this.y = y;
+        this.hasMoved = true;
     }
 
-    @Override
-    public void live() {
-        this.live = false;
-    }
-
-    @Override
-    public void attack(Piece target) {
-        target.live();
-    }
-
-    public void LeftAttackMove(Piece target) {
-        this.x = this.x -1;
-        this.y = this.y +1;
-    }
-    public void RightAttackMove(Piece target) {
-        this.x = this.x +1;
-        this.y = this.y +1;
-    }
 }
