@@ -1,25 +1,32 @@
 package com.gamza.chess.piece;
 
+import com.gamza.chess.board.Point;
+import com.gamza.chess.dto.PieceInfoDto;
+
 import java.util.List;
-import java.util.Map;
 
 public class Bishop extends Piece{
     public Bishop(int id, int x, int y) {
         super(id, x, y);
     }
 
+    public Bishop(PieceInfoDto pieceInfoDto) {
+        super(pieceInfoDto);
+    }
+
+
     @Override
-    public List<Map<Integer, Integer>> getValidMoveList() {
+    public List<Point> getValidMoveList(List<PieceInfoDto> allInGamePieceList) {
         return null;
     }
 
     @Override
-    public boolean isValidMove() {
+    public boolean isValidMove(PieceInfoDto pieceInfoDto, List<PieceInfoDto> allInGamePieceList) {
         return false;
     }
 
     @Override
-    public void move(int x, int y) {
+    public void move() {
 
     }
 

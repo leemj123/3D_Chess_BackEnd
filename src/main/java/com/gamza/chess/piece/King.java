@@ -1,9 +1,9 @@
 package com.gamza.chess.piece;
 
-import com.gamza.chess.Enum.Color;
+import com.gamza.chess.board.Point;
+import com.gamza.chess.dto.PieceInfoDto;
 
 import java.util.List;
-import java.util.Map;
 
 public class King extends Piece{
     private boolean hasMoved; //캐슬링 체크용
@@ -13,19 +13,23 @@ public class King extends Piece{
         this.hasMoved = false;
     }
 
+    public King(PieceInfoDto pieceInfoDto) {
+        super(pieceInfoDto);
+    }
+
     @Override
-    public List<Map<Integer, Integer>> getValidMoveList() {
+    public List<Point> getValidMoveList(List<PieceInfoDto> allInGamePieceList) {
         return null;
     }
 
     @Override
-    public boolean isValidMove() {
+    public boolean isValidMove(PieceInfoDto pieceInfoDto, List<PieceInfoDto> allInGamePieceList) {
         return false;
     }
 
     @Override
-    public void move(int x, int y) {
-        this.hasMoved = true;
+    public void move() {
+
     }
 
 
