@@ -16,12 +16,12 @@ public class AuthController {
     private final AuthService authService;
 
     @GetMapping("/login")
-    public void login(LoginRequestDto loginRequestDto, HttpServletResponse response){
+    public void login(@RequestBody LoginRequestDto loginRequestDto, HttpServletResponse response){
         authService.basicLogin(loginRequestDto, response);
 
     }
-    @PostMapping("/signUp")
-    public void signUp(SignUpRequestDto signUpRequestDto, HttpServletResponse response) {
+    @PostMapping("/sign-up")
+    public void signUp(@RequestBody SignUpRequestDto signUpRequestDto, HttpServletResponse response) {
         authService.basicSignUp(signUpRequestDto, response);
     }
 

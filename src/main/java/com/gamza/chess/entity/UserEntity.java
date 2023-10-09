@@ -5,26 +5,22 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.persistence.*;
 
-@Entity
+@Document
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class UserEntity {
     @Id
-    private String uid;
-    @Column(unique = true, nullable = false)
+    private String _id;
     private String email;
-    @Column(nullable = false)
     private String password;
-    @Column(nullable = false)
     private String userName;
-    @Column(nullable = false)
     private UserRole userRole;
-    @Column(nullable = false)
     private String refreshToken;
 
     public void resetRT(String RT) {

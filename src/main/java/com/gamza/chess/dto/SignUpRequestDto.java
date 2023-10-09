@@ -10,16 +10,16 @@ import java.util.UUID;
 @Getter
 @Setter
 public class SignUpRequestDto {
-    private String username;
+    private String userName;
     private String password;
     private String email;
 
     public UserEntity toEntity (SignUpRequestDto signUpRequestDto) {
         return UserEntity.builder()
-                .uid(String.valueOf(UUID.randomUUID()))
+                ._id(String.valueOf(UUID.randomUUID()))
                 .email(signUpRequestDto.getEmail())
                 .password(signUpRequestDto.getPassword())
-                .userName(signUpRequestDto.getUsername())
+                .userName(signUpRequestDto.getUserName())
                 .userRole(UserRole.USER)
                 .build();
     }
