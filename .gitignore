@@ -25,7 +25,8 @@ bin/
 out/
 !**/src/main/**/out/
 !**/src/test/**/out/
-
+application-real.yml
+JasyptConfigAESTest
 ### NetBeans ###
 /nbproject/private/
 /nbbuild/
