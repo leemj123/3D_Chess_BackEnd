@@ -1,6 +1,7 @@
 package com.gamza.chess.entity;
 
 import com.gamza.chess.Enum.UserRole;
+import com.gamza.chess.dto.SignUpRequestDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -25,6 +26,11 @@ public class UserEntity {
 
     public void resetRT(String RT) {
         this.refreshToken = RT;
+    }
+    public UserEntity (SignUpRequestDto signUpRequestDto){
+        this.email = signUpRequestDto.getEmail();
+        this.password = signUpRequestDto.getPassword();
+        this.userRole = UserRole.USER;
     }
 
 }

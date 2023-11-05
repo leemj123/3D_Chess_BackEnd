@@ -30,6 +30,7 @@ public class AuthService {
         if (!passwordEncoder.matches(loginRequestDto.getPassword(), userEntity.getPassword()))
             throw new UnAuthorizedException("비밀번호가 일치하지 않습니다.",ErrorCode.ACCESS_DENIED_EXCEPTION);
         userEntity.resetRT(jwtProvider.createRT(userEntity.getEmail()));
+        UserEntity userEntity1 = new UserEntity();
         userRepository.save(userEntity);
         this.setJwtTokenHeader(loginRequestDto.getEmail(), response);
     }
