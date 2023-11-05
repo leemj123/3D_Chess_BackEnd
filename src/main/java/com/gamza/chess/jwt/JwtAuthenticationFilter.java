@@ -33,11 +33,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String path = request.getRequestURI();
 
-        if (path.startsWith("/auth")) {
+        if (path.startsWith("/auth") || path.contains("/game/start")) {
             filterChain.doFilter(request, response);
             return;
         }
-//만약 프론트가 accessToken에 아무것도 안넣어서 보내면 그건 refresh해달라는 의미
+        //만약 프론트가 accessToken에 아무것도 안넣어서 보내면 그건 refresh해달라는 의미
         String accessToken = jwtProvider.resolveAT(request);
         ErrorJwtCode errorCode;
         try {

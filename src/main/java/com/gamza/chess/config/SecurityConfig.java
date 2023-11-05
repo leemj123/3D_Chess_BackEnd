@@ -45,6 +45,7 @@ public class SecurityConfig {
                 .authorizeRequests()
                 .antMatchers("/auth/login").permitAll()
                 .antMatchers("/auth/sign-up").permitAll()
+                .antMatchers("/game/start").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .addFilterBefore(jwtAuthenticationFilter, BasicAuthenticationFilter.class)
