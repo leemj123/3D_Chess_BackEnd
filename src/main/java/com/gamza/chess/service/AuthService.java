@@ -9,6 +9,7 @@ import com.gamza.chess.error.exception.UnAuthorizedException;
 import com.gamza.chess.jwt.JwtProvider;
 import com.gamza.chess.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -24,13 +25,17 @@ public class AuthService {
     private final JwtProvider jwtProvider;
     private final PasswordEncoder passwordEncoder;
 
+    public ResponseEntity<String> test(HttpServletRequest request) {
+        String AT = request.getHeader("Authorization");
+        return ResponseEntity.ok("헤더에는 이 값이 담겨 넘어왔어요!: " +AT);
+    }
+
     public void basicLogin (LoginRequestDto loginRequestDto, HttpServletResponse response) {
         UserEntity userEntity = userRepository.findByEmail(loginRequestDto.getEmail()).orElseThrow(()->{throw new UnAuthorizedException("존재하지 않는 이메일입니다.", ErrorCode.ACCESS_DENIED_EXCEPTION);});
 
         if (!passwordEncoder.matches(loginRequestDto.getPassword(), userEntity.getPassword()))
             throw new UnAuthorizedException("비밀번호가 일치하지 않습니다.",ErrorCode.ACCESS_DENIED_EXCEPTION);
         userEntity.resetRT(jwtProvider.createRT(userEntity.getEmail()));
-        UserEntity userEntity1 = new UserEntity();
         userRepository.save(userEntity);
         this.setJwtTokenHeader(loginRequestDto.getEmail(), response);
     }

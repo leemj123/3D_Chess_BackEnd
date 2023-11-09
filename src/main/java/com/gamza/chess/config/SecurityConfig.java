@@ -4,7 +4,6 @@ package com.gamza.chess.config;
 import com.gamza.chess.jwt.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -43,8 +42,7 @@ public class SecurityConfig {
                 .and()
 
                 .authorizeRequests()
-                .antMatchers("/auth/login").permitAll()
-                .antMatchers("/auth/sign-up").permitAll()
+                .antMatchers("/auth/**").permitAll()
                 .antMatchers("/game/start").permitAll()
                 .anyRequest().authenticated()
                 .and()

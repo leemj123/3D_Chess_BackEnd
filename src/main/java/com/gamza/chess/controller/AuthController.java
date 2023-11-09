@@ -4,6 +4,7 @@ import com.gamza.chess.dto.LoginRequestDto;
 import com.gamza.chess.dto.SignUpRequestDto;
 import com.gamza.chess.service.AuthService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -25,8 +26,12 @@ public class AuthController {
         authService.basicSignUp(signUpRequestDto, response);
     }
 
-    @PatchMapping("/refresh")
+    @PostMapping("/refresh")
     public void refreshAccessToken (HttpServletRequest request, HttpServletResponse response) {
         authService.refreshAccessToken(request, response);
+    }
+    @GetMapping("/header/test")
+    public ResponseEntity<String> test(HttpServletRequest request) {
+        return authService.test(request);
     }
 }
