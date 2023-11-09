@@ -33,7 +33,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String path = request.getRequestURI();
 
-        if (path.startsWith("/auth") || path.contains("/game/start")) {
+        if (path.startsWith("/auth") || path.contains("/game/start")
+                || path.contains("/swagger") || path.contains("/v3/api-docs")) {
             filterChain.doFilter(request, response);
             return;
         }
