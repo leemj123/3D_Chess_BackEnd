@@ -8,7 +8,7 @@ spring:
     password: ENC(ZB7jWXUgNnDyQvcdPkfL+oE10CWPacrjx1gr3975bn7JTwgM5xH/LwIGn0UTlY10)
   data:
     mongodb:
-      uri: ENC(bHNVOJSbnG4amniQJ8j5VGVgaVQ6L4dyWXn/KiDaWWb4MnqUa3ZmHsEKm7RJLqFtHwEPmWKiKx/g2kVE6DhBeK2xNmZhIOE75gYv/IiE5W0=)
+      uri: ENC(J+7pUy+hbDnvche4sY5MLGTySR5BA+BraZMJWAaWwXyPMX5Vh7d+THiaoEgg7P15Gu/Vvw037wgewd44ynYlHhOeJ751yVwWI/ZlEeLrpaE=)
 #      host: mongo
 #      port: 27017
 #      database: chess
