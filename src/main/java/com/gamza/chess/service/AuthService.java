@@ -4,6 +4,7 @@ import com.gamza.chess.dto.LoginRequestDto;
 import com.gamza.chess.dto.SignUpRequestDto;
 import com.gamza.chess.entity.UserEntity;
 import com.gamza.chess.error.ErrorCode;
+import com.gamza.chess.error.exception.DuplicateException;
 import com.gamza.chess.error.exception.JwtException;
 import com.gamza.chess.error.exception.UnAuthorizedException;
 import com.gamza.chess.jwt.JwtProvider;
@@ -31,10 +32,10 @@ public class AuthService {
     }
 
     public void basicLogin (LoginRequestDto loginRequestDto, HttpServletResponse response) {
-        UserEntity userEntity = userRepository.findByEmail(loginRequestDto.getEmail()).orElseThrow(()->{throw new UnAuthorizedException("존재하지 않는 이메일입니다.", ErrorCode.ACCESS_DENIED_EXCEPTION);});
+        UserEntity userEntity = userRepository.findByEmail(loginRequestDto.getEmail()).orElseThrow(()->{throw new UnAuthorizedException(ErrorCode.NON_EXITS_EMAIL.getMessage(), ErrorCode.NON_EXITS_EMAIL);});
 
         if (!passwordEncoder.matches(loginRequestDto.getPassword(), userEntity.getPassword()))
-            throw new UnAuthorizedException("비밀번호가 일치하지 않습니다.",ErrorCode.ACCESS_DENIED_EXCEPTION);
+            throw new UnAuthorizedException(ErrorCode.NON_MATCH_PW.getMessage(), ErrorCode.NON_MATCH_PW);
         userEntity.resetRT(jwtProvider.createRT(userEntity.getEmail()));
         userRepository.save(userEntity);
         this.setJwtTokenHeader(loginRequestDto.getEmail(), response);
@@ -42,7 +43,7 @@ public class AuthService {
 
     public void basicSignUp(SignUpRequestDto signUpRequestDto, HttpServletResponse response) {
         if (userRepository.existsByEmail(signUpRequestDto.getEmail()))
-            throw new UnAuthorizedException("이미 사용중인 이메일 입니다.", ErrorCode.ACCESS_DENIED_EXCEPTION);
+            throw new DuplicateException(ErrorCode.DUPLICATE_EXCEPTION.getMessage(), ErrorCode.DUPLICATE_EXCEPTION);
         signUpRequestDto.setPassword(passwordEncoder.encode(signUpRequestDto.getPassword()));
         UserEntity userEntity = signUpRequestDto.toEntity(signUpRequestDto);
         userRepository.save(userEntity);
@@ -54,9 +55,9 @@ public class AuthService {
         jwtProvider.validateToken(RT);
 
         UserEntity userEntity = userRepository.findByEmail(jwtProvider.getUserEmail(RT))
-                .orElseThrow(()->{throw new JwtException("complex error, pleas reLogin", ErrorCode.JWT_COMPLEX_ERROR);});
+                .orElseThrow(()->{throw new JwtException(ErrorCode.JWT_COMPLEX_ERROR.getMessage(), ErrorCode.JWT_COMPLEX_ERROR);});
         if (!(RT.equals(userEntity.getRefreshToken())))
-            throw new JwtException("invalid refresh token", ErrorCode.INVALID_TOKEN);
+            throw new JwtException(ErrorCode.INVALID_TOKEN.getMessage(), ErrorCode.INVALID_TOKEN);
 
         jwtProvider.setHeaderAT(response, jwtProvider.createAT(userEntity.getEmail()));
 
