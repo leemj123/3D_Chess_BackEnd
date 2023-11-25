@@ -6,6 +6,7 @@ import com.gamza.chess.dto.SocketPlayerInfoMessage;
 import com.gamza.chess.service.gameservice.GameMainService;
 import com.gamza.chess.service.gameservice.SocketJsonDto;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -20,6 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 //카페인 알코올 니코틴
 @Component
+@Slf4j
 @RequiredArgsConstructor
 public class GameSocketHandler extends TextWebSocketHandler {
     private Queue<WebSocketSession> waitingSessions = new ConcurrentLinkedQueue<>();
@@ -74,7 +76,9 @@ public class GameSocketHandler extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
+        log.info("접근 성공");
         waitingSessions.add(session);
+        log.info(session.getLocalAddress().toString());
         session.sendMessage(new TextMessage("your session Id: "+session.getId()));
         session.sendMessage(new TextMessage("your session Protocol: "+session.getAcceptedProtocol()));
         session.sendMessage(new TextMessage("your session localAddress: "+session.getLocalAddress().toString()));
@@ -84,6 +88,7 @@ public class GameSocketHandler extends TextWebSocketHandler {
 
         // 2명의 유저가 매칭 대기열에 있을 경우, 게임 시작 알림 전송
         if (waitingSessions.size() >= 2) {
+            log.info("two client access good");
             //세션에서 꺼내와서
             WebSocketSession player1 = waitingSessions.poll();
             WebSocketSession player2 = waitingSessions.poll();
