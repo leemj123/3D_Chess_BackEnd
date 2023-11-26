@@ -77,13 +77,23 @@ public class GameSocketHandler extends TextWebSocketHandler {
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         log.info("접근 성공");
-        waitingSessions.add(session);
-        log.info(session.getLocalAddress().toString());
-        session.sendMessage(new TextMessage("your session Id: "+session.getId()));
-        session.sendMessage(new TextMessage("your session Protocol: "+session.getAcceptedProtocol()));
-        session.sendMessage(new TextMessage("your session localAddress: "+session.getLocalAddress().toString()));
-        session.sendMessage(new TextMessage("______AND____"));
-        session.sendMessage(new TextMessage("waiting other player"));
+        if (session.isOpen()) {
+            waitingSessions.add(session);
+            log.info("add list");
+        } else {
+            waitingSessions.remove(session);
+            log.info("session closed");
+        }
+        if (session.isOpen()) {
+            session.sendMessage(new TextMessage("your session Id: "+session.getId()));
+            session.sendMessage(new TextMessage("your session Protocol: "+session.getAcceptedProtocol()));
+            session.sendMessage(new TextMessage("your session getAttributes: "+session.getAttributes()));
+            session.sendMessage(new TextMessage("______AND____"));
+            session.sendMessage(new TextMessage("waiting other player"));
+        }else {
+            waitingSessions.remove(session);
+            log.info("session closed2");
+        }
 
 
         // 2명의 유저가 매칭 대기열에 있을 경우, 게임 시작 알림 전송
@@ -95,14 +105,21 @@ public class GameSocketHandler extends TextWebSocketHandler {
 
             sessionPairs.put(player1,player2);
             sessionPairs.put(player2,player1);
-
-            player1.sendMessage(new TextMessage("Connection Established!"));
-            player2.sendMessage(new TextMessage("Connection Established!"));
+            if ( session.isOpen() ) {
+                player1.sendMessage(new TextMessage("Connection Established!"));
+                player2.sendMessage(new TextMessage("Connection Established!"));
+            } else {
+                log.info("session closed");
+            }
 
             //메시지 전송
-            player1.sendMessage(new TextMessage("You are Player1"));
-            player2.sendMessage(new TextMessage("You are Player2"));
-
+            if ( session.isOpen()) {
+                player1.sendMessage(new TextMessage("You are Player1"));
+                player2.sendMessage(new TextMessage("You are Player2"));
+            }
+            else {
+                log.info("session closed");
+            }
         }
 
     }
