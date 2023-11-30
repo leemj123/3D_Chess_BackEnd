@@ -3,7 +3,7 @@
 //import com.gamza.chess.board.Point;
 //import com.gamza.chess.dto.PieceInfoDto;
 //import com.gamza.chess.service.RedisService;
-//import com.gamza.chess.service.gameservice.GameMainService;
+//import com.gamza.chess.service.gameservice.oldchess.GameMainService;
 //import lombok.RequiredArgsConstructor;
 //import org.springframework.web.bind.annotation.*;
 //

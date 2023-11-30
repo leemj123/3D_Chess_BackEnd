@@ -5,9 +5,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum Color {
 
-    White("w",0),
-    Black("b",1);
-     private final String title;
-     private final int key;
+    White(0),
+    Black(1);
+    private final int key;
 
 }

@@ -47,6 +47,9 @@ dependencies {
 	//swagger
 	implementation 'org.springdoc:springdoc-openapi-ui:1.6.11'
 
+	//rust logic lib
+	implementation fileTree(dir: 'libs',includes: ['*.jar'])
+
 }
 
 tasks.named('test') {

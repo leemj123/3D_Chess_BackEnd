@@ -1,10 +1,15 @@
 package com.gamza.chess.config.socket;
 
+import club.gamza.warpsquare.engine.Game;
+import club.gamza.warpsquare.engine.Piece;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.gamza.chess.Enum.ACTION;
+import com.gamza.chess.Enum.Color;
 import com.gamza.chess.dto.SocketInitMessageDto;
 import com.gamza.chess.dto.SocketPlayerInfoMessage;
-import com.gamza.chess.service.gameservice.GameMainService;
-import com.gamza.chess.service.gameservice.SocketJsonDto;
+import com.gamza.chess.dto.newchessdto.GameInitSendDto;
+import com.gamza.chess.dto.newchessdto.PieceLocation;
+import com.gamza.chess.service.gameservice.oldchess.GameMainService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -13,20 +18,20 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
-import java.util.UUID;
+import java.io.IOException;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.stream.Collectors;
+
 //카페인 알코올 니코틴
 @Component
 @Slf4j
 @RequiredArgsConstructor
 public class GameSocketHandler extends TextWebSocketHandler {
-    private Queue<WebSocketSession> waitingSessions = new ConcurrentLinkedQueue<>();
+    private Deque<WebSocketSession> waitingSessions = new LinkedList<>();
     private Map<WebSocketSession, WebSocketSession> sessionPairs = new ConcurrentHashMap<>();
-    private final GameMainService gameMainService;
+
 
     //            queue.remove()-> 큐의 첫번째 요소를 삭제(및 반환)한다.     만약 큐가 비어있으면 예외가 발생한다.
     //            queue.poll()-> 큐의 첫번째 요소를 삭제(및 반환)한다.     만약 큐가 비어있으면 null을 반환한다.
@@ -76,7 +81,7 @@ public class GameSocketHandler extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-        log.info("접근 성공");
+        log.info("접근 성공" + session.getId());
         if (session.isOpen()) {
             waitingSessions.add(session);
             log.info("add list");
@@ -84,45 +89,78 @@ public class GameSocketHandler extends TextWebSocketHandler {
             waitingSessions.remove(session);
             log.info("session closed");
         }
-        if (session.isOpen()) {
-            session.sendMessage(new TextMessage("your session Id: "+session.getId()));
-            session.sendMessage(new TextMessage("your session Protocol: "+session.getAcceptedProtocol()));
-            session.sendMessage(new TextMessage("your session getAttributes: "+session.getAttributes()));
-            session.sendMessage(new TextMessage("______AND____"));
-            session.sendMessage(new TextMessage("waiting other player"));
-        }else {
-            waitingSessions.remove(session);
-            log.info("session closed2");
-        }
 
 
         // 2명의 유저가 매칭 대기열에 있을 경우, 게임 시작 알림 전송
         if (waitingSessions.size() >= 2) {
-            log.info("two client access good");
+            for (WebSocketSession webSocketSession : waitingSessions) {
+                log.info("Session Id: " + webSocketSession.getId());
+            }
             //세션에서 꺼내와서
             WebSocketSession player1 = waitingSessions.poll();
             WebSocketSession player2 = waitingSessions.poll();
 
-            sessionPairs.put(player1,player2);
-            sessionPairs.put(player2,player1);
-            if ( session.isOpen() ) {
+            if (!player1.isOpen()) {
+                waitingSessions.addFirst(player2);
+                log.info("player1 error, addFirst to List of player2");
+            } else if (!player2.isOpen()) {
+                waitingSessions.addFirst(player1);
+                log.info("player2 error, addFirst to List of player1");
+            }
+
+            sessionPairs.put(player1, player2);
+            sessionPairs.put(player2, player1);
+
+            if (player1.isOpen() && player2.isOpen()) {
                 player1.sendMessage(new TextMessage("Connection Established!"));
                 player2.sendMessage(new TextMessage("Connection Established!"));
+
+                player1.sendMessage(new TextMessage("You are Player1"));
+                player2.sendMessage(new TextMessage("You are Player2"));
+                ObjectMapper mapper = new ObjectMapper();
+                SocketPlayerInfoMessage socketPlayer1InfoMessage = SocketPlayerInfoMessage.builder()
+                        .action(ACTION.COLOR.toString())
+                        .color(Color.White.toString())
+                        .build();
+                SocketPlayerInfoMessage socketPlayer2InfoMessage = SocketPlayerInfoMessage.builder()
+                        .action(ACTION.COLOR.toString())
+                        .color(Color.Black.toString())
+                        .build();
+
+                String player1info = mapper.writeValueAsString(socketPlayer1InfoMessage);
+                String player2info = mapper.writeValueAsString(socketPlayer2InfoMessage);
+
+                player1.sendMessage(new TextMessage(player1info));
+                player2.sendMessage(new TextMessage(player2info));
+
+                Game game = new Game();
+
+                GameInitSendDto gameInitSendDto = new GameInitSendDto(ACTION.INIT);
+                gameInitSendDto.setLocationList(getPieceLocationList(game.getPieces()));
+
+                String gameInitStatusSend = mapper.writeValueAsString(gameInitSendDto);
+                sendMessageDoublePlayer(player1, player2, gameInitStatusSend);
+
             } else {
-                log.info("session closed");
+                log.info("error, session please closed!!!");
             }
 
             //메시지 전송
-            if ( session.isOpen()) {
-                player1.sendMessage(new TextMessage("You are Player1"));
-                player2.sendMessage(new TextMessage("You are Player2"));
-            }
-            else {
-                log.info("session closed");
-            }
         }
 
     }
+
+    private void sendMessageDoublePlayer(WebSocketSession player1, WebSocketSession player2, String message) throws IOException {
+        player1.sendMessage(new TextMessage(message));
+        player2.sendMessage(new TextMessage(message));
+    }
+
+    private List<PieceLocation> getPieceLocationList (Piece[] pieces) {
+        return Arrays.stream(pieces)
+                .map(piece -> new PieceLocation(piece.getPieceType(),piece.getSquare()))
+                .collect(Collectors.toList());
+    }
+
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
         // 클라이언트와의 연결이 종료됐을 때의 처리 로직을 구현합니다.
@@ -144,6 +182,7 @@ public class GameSocketHandler extends TextWebSocketHandler {
             sessionPairs.remove(pairedSession);
         }
     }
+
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
 
@@ -155,7 +194,6 @@ public class GameSocketHandler extends TextWebSocketHandler {
         }
         session.sendMessage(new TextMessage("당신이 보낸 메시지: "+message.getPayload()));
         pairedSession.sendMessage(new TextMessage("짝남이 보낸 메시지: "+message.getPayload()));
-
 
     }
 }

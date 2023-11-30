@@ -1,4 +1,4 @@
-package com.gamza.chess.service.gameservice;
+package com.gamza.chess.service.gameservice.oldchess;
 
 import com.gamza.chess.board.Point;
 import com.gamza.chess.board.TwoDBoard;

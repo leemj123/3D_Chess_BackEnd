@@ -1,4 +1,4 @@
-package com.gamza.chess.service.gameservice;
+package com.gamza.chess.service.gameservice.oldchess;
 
 import com.gamza.chess.piece.*;
 import org.springframework.stereotype.Service;
