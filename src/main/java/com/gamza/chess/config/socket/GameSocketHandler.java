@@ -110,7 +110,7 @@ public class GameSocketHandler extends TextWebSocketHandler {
                 sessionPairs.put(player1, player2);
                 sessionPairs.put(player2, player1);
 
-                if (player1.isOpen() && player2.isOpen()) {
+                try {
                     player1.sendMessage(new TextMessage("Connection Established!"));
                     player2.sendMessage(new TextMessage("Connection Established!"));
 
@@ -139,8 +139,13 @@ public class GameSocketHandler extends TextWebSocketHandler {
 
                     String gameInitStatusSend = mapper.writeValueAsString(gameInitSendDto);
                     sendMessageDoublePlayer(player1, player2, gameInitStatusSend);
-                } else {
-                    log.info("error, session please closed!!!");
+                } catch (IllegalStateException e) {
+                    log.info("IllegalStateException");
+                    if (player1.isOpen() || player2.isOpen()) {
+                        sessionPairs.remove(player1);
+                        sessionPairs.remove(player2);
+                        player1.close();
+                    }
                 }
             }
             //메시지 전송
@@ -166,7 +171,9 @@ public class GameSocketHandler extends TextWebSocketHandler {
 
         if (pairedSession != null && pairedSession.isOpen()) {
             try {
-                pairedSession.sendMessage(new TextMessage("Connection Close"));
+                log.info("close start");
+                pairedSession.sendMessage(new TextMessage("==================success Close================="));
+                log.info("close fin");
             } catch (IllegalStateException e) {
                 //일부러 아무처리 안함
             } finally {
