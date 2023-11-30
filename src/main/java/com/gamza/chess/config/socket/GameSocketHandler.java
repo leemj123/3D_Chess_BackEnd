@@ -131,13 +131,19 @@ public class GameSocketHandler extends TextWebSocketHandler {
 
                     player1.sendMessage(new TextMessage(player1info));
                     player2.sendMessage(new TextMessage(player2info));
-
+                    log.info("=====================111======================");
                     Game game = new Game();
-
+                    log.info("=====================222=====================");
                     GameInitSendDto gameInitSendDto = new GameInitSendDto(ACTION.INIT);
+                    log.info("=====================333===================");
+
                     gameInitSendDto.setLocationList(getPieceLocationList(game.getPieces()));
+                    log.info("=====================444=====================");
+
 
                     String gameInitStatusSend = mapper.writeValueAsString(gameInitSendDto);
+                    log.info("=====================555=====================");
+
                     sendMessageDoublePlayer(player1, player2, gameInitStatusSend);
                 } catch (IllegalStateException e) {
                     log.info("IllegalStateException");
@@ -154,11 +160,13 @@ public class GameSocketHandler extends TextWebSocketHandler {
     }
 
     private void sendMessageDoublePlayer(WebSocketSession player1, WebSocketSession player2, String message) throws IOException {
+        log.info("sendMessage");
         player1.sendMessage(new TextMessage(message));
         player2.sendMessage(new TextMessage(message));
     }
 
     private List<PieceLocation> getPieceLocationList (Piece[] pieces) {
+        log.info("getPieceLocationList");
         return Arrays.stream(pieces)
                 .map(piece -> new PieceLocation(piece.getPieceType(),piece.getSquare()))
                 .collect(Collectors.toList());
