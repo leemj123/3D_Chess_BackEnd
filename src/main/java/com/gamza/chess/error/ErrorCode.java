@@ -16,6 +16,7 @@ public enum ErrorCode {
     DUPLICATE_EXCEPTION(HttpStatus.BAD_REQUEST,401,"Duplicate email"),
     NON_MATCH_PW(HttpStatus.UNAUTHORIZED,401,"non match password"),
     NON_EXITS_EMAIL(HttpStatus.UNAUTHORIZED,401,"non exits email"),
+    TOO_SHORT_EMAIL_PW(HttpStatus.UNAUTHORIZED,401,"Too short email or password"),
 
     EXPIRED_AT(HttpStatus.UNAUTHORIZED,101, "access token has expired. Please try with token refresh"),
 

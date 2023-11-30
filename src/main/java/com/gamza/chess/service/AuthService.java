@@ -42,6 +42,9 @@ public class AuthService {
     }
 
     public void basicSignUp(SignUpRequestDto signUpRequestDto, HttpServletResponse response) {
+        if (signUpRequestDto.getEmail().length() < 6 || signUpRequestDto.getPassword().length() < 6) {
+            throw new UnAuthorizedException(ErrorCode.TOO_SHORT_EMAIL_PW.getMessage(), ErrorCode.TOO_SHORT_EMAIL_PW);
+        }
         if (userRepository.existsByEmail(signUpRequestDto.getEmail()))
             throw new DuplicateException(ErrorCode.DUPLICATE_EXCEPTION.getMessage(), ErrorCode.DUPLICATE_EXCEPTION);
         signUpRequestDto.setPassword(passwordEncoder.encode(signUpRequestDto.getPassword()));
