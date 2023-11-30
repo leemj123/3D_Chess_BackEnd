@@ -8,4 +8,4 @@ RUN chmod +x ./gradlew && ./gradlew bootjar
 # 실행 스테이지
 FROM openjdk:11-jre-slim
 COPY --from=build /app/build/libs/chess-0.1.jar /app/
-ENTRYPOINT ["java", "-jar", "/app/chess-0.1.jar"]
+ENTRYPOINT ["sh","-c", "java ${JAVA_OPTS} -jar /app/chess-0.1.jar"]
