@@ -106,45 +106,43 @@ public class GameSocketHandler extends TextWebSocketHandler {
             } else if (!player2.isOpen()) {
                 waitingSessions.addFirst(player1);
                 log.info("player2 error, addFirst to List of player1");
-            }
-
-            sessionPairs.put(player1, player2);
-            sessionPairs.put(player2, player1);
-
-            if (player1.isOpen() && player2.isOpen()) {
-                player1.sendMessage(new TextMessage("Connection Established!"));
-                player2.sendMessage(new TextMessage("Connection Established!"));
-
-                player1.sendMessage(new TextMessage("You are Player1"));
-                player2.sendMessage(new TextMessage("You are Player2"));
-                ObjectMapper mapper = new ObjectMapper();
-                SocketPlayerInfoMessage socketPlayer1InfoMessage = SocketPlayerInfoMessage.builder()
-                        .action(ACTION.COLOR.toString())
-                        .color(Color.White.toString())
-                        .build();
-                SocketPlayerInfoMessage socketPlayer2InfoMessage = SocketPlayerInfoMessage.builder()
-                        .action(ACTION.COLOR.toString())
-                        .color(Color.Black.toString())
-                        .build();
-
-                String player1info = mapper.writeValueAsString(socketPlayer1InfoMessage);
-                String player2info = mapper.writeValueAsString(socketPlayer2InfoMessage);
-
-                player1.sendMessage(new TextMessage(player1info));
-                player2.sendMessage(new TextMessage(player2info));
-
-                Game game = new Game();
-
-                GameInitSendDto gameInitSendDto = new GameInitSendDto(ACTION.INIT);
-                gameInitSendDto.setLocationList(getPieceLocationList(game.getPieces()));
-
-                String gameInitStatusSend = mapper.writeValueAsString(gameInitSendDto);
-                sendMessageDoublePlayer(player1, player2, gameInitStatusSend);
-
             } else {
-                log.info("error, session please closed!!!");
-            }
+                sessionPairs.put(player1, player2);
+                sessionPairs.put(player2, player1);
 
+                if (player1.isOpen() && player2.isOpen()) {
+                    player1.sendMessage(new TextMessage("Connection Established!"));
+                    player2.sendMessage(new TextMessage("Connection Established!"));
+
+                    player1.sendMessage(new TextMessage("You are Player1"));
+                    player2.sendMessage(new TextMessage("You are Player2"));
+                    ObjectMapper mapper = new ObjectMapper();
+                    SocketPlayerInfoMessage socketPlayer1InfoMessage = SocketPlayerInfoMessage.builder()
+                            .action(ACTION.COLOR.toString())
+                            .color(Color.White.toString())
+                            .build();
+                    SocketPlayerInfoMessage socketPlayer2InfoMessage = SocketPlayerInfoMessage.builder()
+                            .action(ACTION.COLOR.toString())
+                            .color(Color.Black.toString())
+                            .build();
+
+                    String player1info = mapper.writeValueAsString(socketPlayer1InfoMessage);
+                    String player2info = mapper.writeValueAsString(socketPlayer2InfoMessage);
+
+                    player1.sendMessage(new TextMessage(player1info));
+                    player2.sendMessage(new TextMessage(player2info));
+
+                    Game game = new Game();
+
+                    GameInitSendDto gameInitSendDto = new GameInitSendDto(ACTION.INIT);
+                    gameInitSendDto.setLocationList(getPieceLocationList(game.getPieces()));
+
+                    String gameInitStatusSend = mapper.writeValueAsString(gameInitSendDto);
+                    sendMessageDoublePlayer(player1, player2, gameInitStatusSend);
+                } else {
+                    log.info("error, session please closed!!!");
+                }
+            }
             //메시지 전송
         }
 
