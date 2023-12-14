@@ -5,11 +5,10 @@ import club.gamza.warpsquare.engine.Piece;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gamza.chess.Enum.ACTION;
 import com.gamza.chess.Enum.Color;
-import com.gamza.chess.dto.SocketInitMessageDto;
 import com.gamza.chess.dto.SocketPlayerInfoMessage;
 import com.gamza.chess.dto.newchessdto.GameInitSendDto;
 import com.gamza.chess.dto.newchessdto.PieceLocation;
-import com.gamza.chess.service.gameservice.oldchess.GameMainService;
+import com.gamza.chess.dto.newchessdto.PieceMoveDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -21,7 +20,6 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
 
 //카페인 알코올 니코틴
@@ -200,43 +198,17 @@ public class GameSocketHandler extends TextWebSocketHandler {
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
 
         WebSocketSession pairedSession = sessionPairs.get(session);
-
         if (pairedSession == null) {
             session.sendMessage(new TextMessage("아직 짝이 이루어지지 않았어요, 상대방이 들어올때까지 기다려주세요"));
             return;
         }
-        session.sendMessage(new TextMessage("당신이 보낸 메시지: "+message.getPayload()));
-        pairedSession.sendMessage(new TextMessage("짝남이 보낸 메시지: "+message.getPayload()));
+
+//        ObjectMapper mapper = new ObjectMapper();
+//        PieceMoveDto pieceMoveDto = mapper.readValue(message.getPayload(), PieceMoveDto.class);
+
+
+        session.sendMessage(new TextMessage("you send this: \n"+message.getPayload()));
+        pairedSession.sendMessage(new TextMessage("i got this: \n"+message.getPayload()));
 
     }
 }
-//    @Override
-//    protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-//        SocketJsonDto socketJsonDto = new ObjectMapper().readValue(message.getPayload(), SocketJsonDto.class);
-//        switch (socketJsonDto.getAction()) {
-//            case "MOVE":
-//
-//                break;
-//            case "MOVE_VALID":
-//                gameMainService.getMoveValidList(socketJsonDto.getRoomKey(), socketJsonDto.getPieceId());
-//                break;
-//
-//
-//        }
-//    }
-//}
-//    void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus)
-//    한쪽에서 WebSocket 연결을 닫은 후 또는 전송 오류가 발생한 후에 호출됩니다.
-//      새로운 클라이언트 연결 시 처리 로직을 구현합니다.
-
-//        void afterConnectionEstablished(WebSocketSession session)
-//        WebSocket 협상이 성공하고 WebSocket 연결이 열리고 사용할 준비가 된 후에 호출됩니다.
-
-//        void handleMessage(WebSocketSession session, WebSocketMessage<?> message)
-//        새 WebSocket 메시지가 도착하면 호출됩니다.
-
-//        void handleTransportError(WebSocketSession session, Throwable exception)
-//        기본 WebSocket 메시지 전송의 오류를 처리합니다.
-
-//        boolean supportsPartialMessages()
-//        WebSocketHandler가 부분 메시지를 처리하는지 여부입니다.

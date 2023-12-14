@@ -5,7 +5,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum ACTION {
     INIT("InitMethod"),
-    COLOR("setColor");
+    COLOR("setColor"),
+    MOVE("MovePiece");
 
     private final String title;
 }
