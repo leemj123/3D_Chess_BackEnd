@@ -196,12 +196,15 @@ public class GameSocketHandler extends TextWebSocketHandler {
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-
+        log.info("=================IN===================");
         WebSocketSession pairedSession = sessionPairs.get(session);
         if (pairedSession == null) {
+            log.info("===================None PairedSession===================");
             session.sendMessage(new TextMessage("아직 짝이 이루어지지 않았어요, 상대방이 들어올때까지 기다려주세요"));
             return;
         }
+        log.info("===================isPairedSession===================");
+        log.info("===================\n"+message.getPayload()+"\n===================");
 
 //        ObjectMapper mapper = new ObjectMapper();
 //        PieceMoveDto pieceMoveDto = mapper.readValue(message.getPayload(), PieceMoveDto.class);
@@ -209,6 +212,7 @@ public class GameSocketHandler extends TextWebSocketHandler {
 
         session.sendMessage(new TextMessage("you send this: \n"+message.getPayload()));
         pairedSession.sendMessage(new TextMessage("i got this: \n"+message.getPayload()));
+        log.info("===================good===================");
 
     }
 }
