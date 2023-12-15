@@ -210,8 +210,8 @@ public class GameSocketHandler extends TextWebSocketHandler {
 //        PieceMoveDto pieceMoveDto = mapper.readValue(message.getPayload(), PieceMoveDto.class);
 
 
-        session.sendMessage(new TextMessage("you send this: \n"+message.getPayload()));
-        pairedSession.sendMessage(new TextMessage("i got this: \n"+message.getPayload()));
+        session.sendMessage(new TextMessage(message.getPayload()));
+        pairedSession.sendMessage(new TextMessage(message.getPayload()));
         log.info("===================good===================");
 
     }
