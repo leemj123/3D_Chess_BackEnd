@@ -17,6 +17,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
@@ -46,7 +48,9 @@ public class JwtProvider {
         UserEntity userEntity = userRepository.findByEmail(email)
                 .orElseThrow(()->{throw new UsernameNotFoundException("찾을 수 없음");});
         Claims claims = Jwts.claims().setSubject(email);
-        claims.put("roles",userEntity.getUserRole().toString());
+        claims.put("score",userEntity.getScore());
+        claims.put("role",userEntity.getUserRole().toString());
+        claims.put("tier",userEntity.getTier());
 
         Date date = new Date();
 
@@ -100,9 +104,20 @@ public class JwtProvider {
         return new UsernamePasswordAuthenticationToken(userDetails,"",userDetails.getAuthorities());
     }
     public String getUserEmail(String token) {
-        String email = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getSubject();
+        return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getSubject();
+    }
+    public int getUserScore(String token) {
+        return Integer.parseInt((String) Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token).getBody().get("tier"));
+    }
+    public Map<String,Object> getTokenSubject(String token) {
+        Claims claims = Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token).getBody();
+        Map<String,Object> tokenDecodedInfo = new HashMap<>();
+        tokenDecodedInfo.put("email", claims.getSubject());
+        tokenDecodedInfo.put("role", claims.get("role"));
+        tokenDecodedInfo.put("score", Integer.parseInt((String) claims.get("score")));
+        tokenDecodedInfo.put("tier",claims.get("tier"));
 
-        return email;
+        return tokenDecodedInfo;
     }
     public UserEntity findByUserOnToken(HttpServletRequest request) {
         String userEmail = this.getUserEmail(this.resolveAT(request));

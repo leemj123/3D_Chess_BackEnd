@@ -1,5 +1,6 @@
 package com.gamza.chess.entity;
 
+import com.gamza.chess.Enum.Tier;
 import com.gamza.chess.Enum.UserRole;
 import com.gamza.chess.dto.SignUpRequestDto;
 import lombok.AllArgsConstructor;
@@ -22,6 +23,8 @@ public class UserEntity {
     private String password;
     private String userName;
     private UserRole userRole;
+    private Tier tier;
+    private int score;
     private String refreshToken;
 
     public void resetRT(String RT) {
