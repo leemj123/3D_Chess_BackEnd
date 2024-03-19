@@ -36,12 +36,12 @@ public class SessionManager {
      * 함수에 synchronized 걸면 부하 우려
      * 멀티 스레드에서 공유되는 주체인 waitingHashTable을 집중 관리
      */
-    public int estimateWaitTime(int score, Tier tier) {
-        int total = 0;
-        for (int i = score -2; i <= score+2; i++) {
-            total += waitingHashTable.get(i).size();
-        }
-    }
+//    public int estimateWaitTime(int score, Tier tier) {
+//        int total = 0;
+//        for (int i = score -2; i <= score+2; i++) {
+//            total += waitingHashTable.get(i).size();
+//        }
+//    }
     public SessionPair sessionMatch(WebSocketSession session, int score, Tier tier) {
 
         WebSocketSession matchTargetSession = circuitTableRow(score);

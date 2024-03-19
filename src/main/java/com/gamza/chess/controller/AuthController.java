@@ -30,15 +30,10 @@ public class AuthController {
     public void signUp(@RequestBody SignUpRequestDto signUpRequestDto, HttpServletResponse response) {
         authService.basicSignUp(signUpRequestDto, response);
     }
-
     @PostMapping("/refresh")
     @Operation(summary = "AT 재발급용",description = "헤더에 AT를 보내줘야함, 응답으로 헤더에 AT만 포함")
     public void refreshAccessToken (HttpServletRequest request, HttpServletResponse response) {
         authService.refreshAccessToken(request, response);
     }
-    @Operation(summary = "테스트용",description = "[ Authorization : ? ]으로 보내주면 ? 값 무조건 반환")
-    @GetMapping("/header/test")
-    public ResponseEntity<String> test(HttpServletRequest request) {
-        return authService.test(request);
-    }
+
 }

@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.persistence.*;
+import java.util.UUID;
 
 @Document
 @Getter
@@ -32,8 +33,9 @@ public class UserEntity {
     }
     public UserEntity (SignUpRequestDto signUpRequestDto){
         this.email = signUpRequestDto.getEmail();
+        this.tier = Tier.Farmer;
+        this.score = 0;
         this.password = signUpRequestDto.getPassword();
         this.userRole = UserRole.USER;
     }
-
 }

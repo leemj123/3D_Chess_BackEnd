@@ -48,6 +48,7 @@ public class JwtProvider {
         UserEntity userEntity = userRepository.findByEmail(email)
                 .orElseThrow(()->{throw new UsernameNotFoundException("찾을 수 없음");});
         Claims claims = Jwts.claims().setSubject(email);
+        claims.put("name",userEntity.getUserName());
         claims.put("score",userEntity.getScore());
         claims.put("role",userEntity.getUserRole().toString());
         claims.put("tier",userEntity.getTier());
@@ -113,8 +114,9 @@ public class JwtProvider {
         Claims claims = Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token).getBody();
         Map<String,Object> tokenDecodedInfo = new HashMap<>();
         tokenDecodedInfo.put("email", claims.getSubject());
+        tokenDecodedInfo.put("name", claims.getSubject());
         tokenDecodedInfo.put("role", claims.get("role"));
-        tokenDecodedInfo.put("score", Integer.parseInt((String) claims.get("score")));
+        tokenDecodedInfo.put("score", claims.get("score"));
         tokenDecodedInfo.put("tier",claims.get("tier"));
 
         return tokenDecodedInfo;

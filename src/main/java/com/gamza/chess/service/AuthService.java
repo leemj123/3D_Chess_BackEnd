@@ -48,7 +48,7 @@ public class AuthService {
         if (userRepository.existsByEmail(signUpRequestDto.getEmail()))
             throw new DuplicateException(ErrorCode.DUPLICATE_EXCEPTION.getMessage(), ErrorCode.DUPLICATE_EXCEPTION);
         signUpRequestDto.setPassword(passwordEncoder.encode(signUpRequestDto.getPassword()));
-        UserEntity userEntity = signUpRequestDto.toEntity(signUpRequestDto);
+        UserEntity userEntity = new UserEntity(signUpRequestDto);
         userRepository.save(userEntity);
         this.setJwtTokenHeader(userEntity.getEmail(), response);
     }

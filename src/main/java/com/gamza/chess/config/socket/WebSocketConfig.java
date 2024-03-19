@@ -19,6 +19,8 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class WebSocketConfig implements WebSocketConfigurer {
     private final JwtProvider jwtProvider;
+    private final SessionManager sessionManager;
+    private final MessageProcessor messageProcessor;
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
         registry.addHandler(handler(), "/game/start")
@@ -27,7 +29,7 @@ public class WebSocketConfig implements WebSocketConfigurer {
     }
     @Bean
     public WebSocketHandler handler(){
-        return new GameSocketHandler();
+        return new GameSocketHandler(sessionManager, messageProcessor);
     }
 
 }
