@@ -1,4 +1,4 @@
-package com.gamza.chess.dto.newchessdto;
+package com.gamza.chess.config.socket.dto;
 
 import club.gamza.warpsquare.engine.File;
 import club.gamza.warpsquare.engine.Level;

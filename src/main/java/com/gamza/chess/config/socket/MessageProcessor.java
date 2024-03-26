@@ -1,7 +1,11 @@
 package com.gamza.chess.config.socket;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gamza.chess.dto.newchessdto.GameInitSendDto;
+
+import com.gamza.chess.config.socket.dto.MatchedUserInfo;
+import com.gamza.chess.config.socket.dto.PlayerColor;
+import com.gamza.chess.config.socket.dto.SessionPair;
+import com.gamza.chess.config.socket.dto.GameInitSendDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.TextMessage;
@@ -36,10 +40,42 @@ public class MessageProcessor {
         session.sendMessage(new TextMessage("세션 강제 종료"));
 
     }
-    public void gameInitInfoSender (SessionPair sessionPair, GameInitSendDto gameInitSendDto) throws IOException {
-        String initJson = objectMapper.writeValueAsString(gameInitSendDto);
+    public Mono<Void> gameInitInfoSender (SessionPair sessionPair, GameInitSendDto gameInitSendDto) {
+        try {
+            String initJson = objectMapper.writeValueAsString(gameInitSendDto);
+            sessionPair.getWhite().sendMessage(new TextMessage(initJson));
+            sessionPair.getBlack().sendMessage(new TextMessage(initJson));
+            return Mono.empty();
 
-        sessionPair.getWhite().sendMessage(new TextMessage(initJson));
-        sessionPair.getBlack().sendMessage(new TextMessage(initJson));
+        } catch (IOException e) {
+            return Mono.error(e);
+        }
+    }
+    public Mono<Void> userColorSender(SessionPair sessionPair) {
+        try {
+            sessionPair.getWhite().sendMessage(new TextMessage(objectMapper.writeValueAsString(new PlayerColor("white"))));
+            sessionPair.getBlack().sendMessage(new TextMessage(objectMapper.writeValueAsString(new PlayerColor("black"))));
+
+            return Mono.empty();
+        } catch (IOException e) {
+            return Mono.error(e);
+        }
+
+
+    }
+    public Mono<Void> matchedUserInfoSender(SessionPair sessionPair) {
+        try {
+            String whiteInfoJson = objectMapper.writeValueAsString(new MatchedUserInfo(sessionPair.getWhite().getAttributes()));
+            String blackInfoJson = objectMapper.writeValueAsString(new MatchedUserInfo(sessionPair.getBlack().getAttributes()));
+
+            sessionPair.getBlack().sendMessage(new TextMessage(whiteInfoJson));
+            sessionPair.getWhite().sendMessage(new TextMessage(blackInfoJson));
+
+            return Mono.empty();
+        } catch (IOException e) {
+            return Mono.error(e);
+        }
+
+
     }
 }

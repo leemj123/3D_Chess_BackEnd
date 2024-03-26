@@ -8,9 +8,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.mongodb.core.mapping.Document;
-
 import javax.persistence.*;
-import java.util.UUID;
 
 @Document
 @Getter
@@ -33,6 +31,7 @@ public class UserEntity {
     }
     public UserEntity (SignUpRequestDto signUpRequestDto){
         this.email = signUpRequestDto.getEmail();
+        this.userName = signUpRequestDto.getUserName();
         this.tier = Tier.Farmer;
         this.score = 0;
         this.password = signUpRequestDto.getPassword();

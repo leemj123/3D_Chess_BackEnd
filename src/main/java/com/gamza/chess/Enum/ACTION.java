@@ -3,10 +3,12 @@ package com.gamza.chess.Enum;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public enum ACTION {
-    INIT("InitMethod"),
-    COLOR("setColor"),
-    MOVE("MovePiece");
 
-    private final String title;
+public enum ACTION {
+    INIT,
+    COLOR,
+    MATCHED_USER,
+    MOVE,
+    ;
+
 }

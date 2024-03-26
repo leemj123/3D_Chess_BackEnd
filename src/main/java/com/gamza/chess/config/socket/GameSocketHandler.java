@@ -8,11 +8,6 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
-
-import java.io.IOException;
-
-
-
 @Component
 @Slf4j
 @RequiredArgsConstructor
@@ -21,10 +16,9 @@ public class GameSocketHandler extends TextWebSocketHandler {
 
 
     @Override
-    public void afterConnectionEstablished(WebSocketSession session) throws IOException {
+    public void afterConnectionEstablished(WebSocketSession session) {
 
         int score = (int) session.getAttributes().get("score");
-
         //매칭시도 비동기
         sessionManager.sessionMatch(session,score)
                 .doOnSuccess(sessionPair -> {
@@ -33,17 +27,19 @@ public class GameSocketHandler extends TextWebSocketHandler {
                     else
                         sessionManager.sessionMatchSuccess(sessionPair);
                 }).subscribe();
+
+
     }
 
 
 
     @Override
-    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
+    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
         sessionManager.removeSession(session);
     }
 
     @Override
-    protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
+    protected void handleTextMessage(WebSocketSession session, TextMessage message) {
 
 
     }

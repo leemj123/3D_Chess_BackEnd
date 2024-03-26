@@ -1,4 +1,4 @@
-package com.gamza.chess.dto.newchessdto;
+package com.gamza.chess.config.socket.dto;
 
 import com.gamza.chess.Enum.ACTION;
 import lombok.Getter;
@@ -11,11 +11,12 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 public class GameInitSendDto {
-    private String action;
+
+    private ACTION action;
     private List<PieceLocation> LocationList;
 
-    public GameInitSendDto(ACTION action) {
-        this.action = action.toString();
-        this.LocationList = new ArrayList<>();
+    public GameInitSendDto(List<PieceLocation> pieceLocationList) {
+        this.action = ACTION.INIT;
+        this.LocationList = pieceLocationList;
     }
 }

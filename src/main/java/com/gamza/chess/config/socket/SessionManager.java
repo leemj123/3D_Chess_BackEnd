@@ -1,9 +1,11 @@
 package com.gamza.chess.config.socket;
 
+import club.gamza.warpsquare.engine.Game;
+import com.gamza.chess.config.socket.dto.SessionPair;
+import com.gamza.chess.config.socket.dto.GameInitSendDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.WebSocketSession;
 import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
@@ -19,8 +21,10 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 public class SessionManager {
     private final MessageProcessor messageProcessor;
+    private final GameLogicService gameLogicService;
     private final ConcurrentHashMap<Integer, List<WebSocketSession>> waitingHashTable = new ConcurrentHashMap<>();
-    private final Map<WebSocketSession, WebSocketSession> sessionPairsHashTable = new ConcurrentHashMap<>();
+    private final Map<WebSocketSession, WebSocketSession> sessionPairsHashTable = new HashMap<>();
+    private final static Map<String, Game> gameStatus = new HashMap<>();
 
     //동시성 컨트롤 문제
 
@@ -48,7 +52,6 @@ public class SessionManager {
                             removeFromWaitingQueue(session,score);
                             sink.success(null);
                         }
-
                     })
                     .subscribe();
 
@@ -153,7 +156,29 @@ public class SessionManager {
                 .subscribe();
 
         sessionPairsHashTable.put(sessionPair.getBlack(), sessionPair.getWhite());
+
+        //유저 칼라 전송
+        messageProcessor.userColorSender(sessionPair)
+                .doOnError(e -> log.error("userColorSender error \n"+e))
+                .subscribe();
+        //상대유저 정보 전송
+        messageProcessor.matchedUserInfoSender(sessionPair)
+                .doOnError(e -> log.error("userInfoSender error \n"+e))
+                .subscribe();
+
+        Game game = new Game();
+        gameStatus.put(sessionPair.getBlack().getId(), game);
+        gameStatus.put(sessionPair.getWhite().getId(), game);
+
+        GameInitSendDto gameInitSendDto = new GameInitSendDto(gameLogicService.getPieceLocationList(game.getPieces()));
+
+
+        messageProcessor.gameInitInfoSender(sessionPair, gameInitSendDto)
+                .doOnError(e -> log.error("gameInitInfoSender error \n"+e))
+                .subscribe();
+
     }
+
 
 
 }

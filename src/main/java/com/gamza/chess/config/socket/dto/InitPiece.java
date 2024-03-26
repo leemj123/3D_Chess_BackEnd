@@ -1,4 +1,4 @@
-package com.gamza.chess.dto;
+package com.gamza.chess.config.socket.dto;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -7,7 +7,7 @@ import java.util.List;
 
 @Builder
 @Getter
-public class SocketInitMessageDto {
+public class InitPiece {
     private String action;
     private List<PieceInfoDto> initPieces;
 }
