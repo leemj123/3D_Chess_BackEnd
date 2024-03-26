@@ -13,6 +13,6 @@ public class UserInfoDto {
     public UserInfoDto (Map<String,Object> claims) {
         this.userName = (String) claims.get("name");
         this.tier = claims.get("tier");
-        this.score = (int) claims.get("score");
+        this.score = (int) claims.get("calScore");
     }
 }

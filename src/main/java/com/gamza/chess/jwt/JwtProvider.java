@@ -1,6 +1,7 @@
 package com.gamza.chess.jwt;
 
 
+import com.gamza.chess.Enum.Tier;
 import com.gamza.chess.entity.UserEntity;
 import com.gamza.chess.error.ErrorCode;
 import com.gamza.chess.error.exception.NotFoundException;
@@ -46,7 +47,7 @@ public class JwtProvider {
 
     public String createToken(String email, long tokenTime){
         UserEntity userEntity = userRepository.findByEmail(email)
-                .orElseThrow(()->{throw new UsernameNotFoundException("찾을 수 없음");});
+                .orElseThrow(()-> new UsernameNotFoundException("찾을 수 없음"));
         Claims claims = Jwts.claims().setSubject(email);
         claims.put("name",userEntity.getUserName());
         claims.put("score",userEntity.getScore());
@@ -114,12 +115,18 @@ public class JwtProvider {
         Claims claims = Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token).getBody();
         Map<String,Object> tokenDecodedInfo = new HashMap<>();
         tokenDecodedInfo.put("email", claims.getSubject());
-        tokenDecodedInfo.put("name", claims.getSubject());
+        tokenDecodedInfo.put("name", claims.get("name"));
         tokenDecodedInfo.put("role", claims.get("role"));
         tokenDecodedInfo.put("score", claims.get("score"));
         tokenDecodedInfo.put("tier",claims.get("tier"));
+        tokenDecodedInfo.put("calScore",(this.calculateScore(claims.get("tier"), claims.get("score"))));
 
         return tokenDecodedInfo;
+    }
+    private int calculateScore(Object tier, Object score) {
+
+        return Tier.valueOf((String) tier).getMinScore() - (int)score;
+
     }
     public UserEntity findByUserOnToken(HttpServletRequest request) {
         String userEmail = this.getUserEmail(this.resolveAT(request));

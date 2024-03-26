@@ -15,8 +15,9 @@ public class SocketHandshakeInterceptor implements HandshakeInterceptor {
     }
     @Override
     public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler, Map<String, Object> attributes) throws Exception {
-        String token = request.getURI().getQuery().split("token=")[1];
-        jwtProvider.validateToken(token);
+
+        String token = (request.getURI().getQuery().split("token=")[1]).substring(7);
+         jwtProvider.validateToken(token);
         Map<String, Object> tokenDecodedInfo =  jwtProvider.getTokenSubject(token);
         attributes.putAll(tokenDecodedInfo);
 

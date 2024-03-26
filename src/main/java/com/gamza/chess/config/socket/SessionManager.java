@@ -1,13 +1,16 @@
 package com.gamza.chess.config.socket;
 
-import com.gamza.chess.Enum.Tier;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.WebSocketSession;
+import reactor.core.Exceptions;
+import reactor.core.publisher.Mono;
+
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -16,35 +19,73 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 public class SessionManager {
     private final MessageProcessor messageProcessor;
-    /** waitingHashTable
-     * 1. 일단 Map이여야함
-     * 2. Multi-thread가 able 이여야함
-     * > 가능한 종류 {HashTable, ConcurrentHashMap }
-     * > 불가능 한 종류 {HashMap -> 내부에 synchronized 비존재}
-     * 3. key에 Enum의 socre가 들어감
-     *
-     * ConcurrentHashMap
-     * > Get에 synchronized 없음
-     * > Put, delete -> 동기화처리 ㄱㄴ
-     */
     private final ConcurrentHashMap<Integer, List<WebSocketSession>> waitingHashTable = new ConcurrentHashMap<>();
-    private Map<WebSocketSession, WebSocketSession> sessionPairsHashTable = new ConcurrentHashMap<>();
+    private final Map<WebSocketSession, WebSocketSession> sessionPairsHashTable = new ConcurrentHashMap<>();
 
     //동시성 컨트롤 문제
 
-    /**
-     * 함수에 synchronized 걸면 부하 우려
-     * 멀티 스레드에서 공유되는 주체인 waitingHashTable을 집중 관리
-     */
-//    public int estimateWaitTime(int score, Tier tier) {
-//        int total = 0;
-//        for (int i = score -2; i <= score+2; i++) {
-//            total += waitingHashTable.get(i).size();
-//        }
-//    }
-    public SessionPair sessionMatch(WebSocketSession session, int score, Tier tier) {
+    //aging 처리가 약간 가라느낌?
 
+    public Mono<SessionPair> sessionMatch(WebSocketSession session, int score) {
+        return Mono.create(sink -> {
+            // 매칭 시도
+            log.info("sessionMatch 32");
+            SessionPair sessionPair = this.tryToMatch(session, score);
+            if (sessionPair != null) {
+                log.info("Match found for session ID: {}", session.getId());
+                sink.success(sessionPair);
+                return;
+            }
+            addToWaitingQueue(session, score);
+            // 점수대에 맞는 대기중인 유저를 찾을 수 없음
+            // 대기열에 추가하고 20초 후 매칭 실패 처리
+            messageProcessor.estimatedTime(session, 30)
+                    .doOnError(e -> log.error("Error sending estimated time message", e))
+                    .then(Mono.delay(Duration.ofSeconds(30)))
+                    .doOnSuccess(done -> {
+                        if (isSessionStillWaiting(session,score)){
+                            log.info("Waiting period over for session ID: {}", session.getId());
+                            removeFromWaitingQueue(session,score);
+                            sink.success(null);
+                        }
+
+                    })
+                    .subscribe();
+
+        });
+    }
+    private boolean isSessionStillWaiting (WebSocketSession session, int score) {
+
+        List<WebSocketSession> sessions = waitingHashTable.get(score);
+        if (sessions != null) {
+            return sessions.contains(session);
+        }
+        return false;
+
+    }
+    private void removeFromWaitingQueue(WebSocketSession session, int score) {
+
+        List<WebSocketSession> sessions = waitingHashTable.get(score);
+        sessions.remove(session);
+
+    }
+    public void sessionMatchFailed (WebSocketSession session){
+        try {
+            messageProcessor.matchFailed(session);
+            session.close();
+        } catch (IOException e) {
+            throw Exceptions.propagate(e); // 리액티브 스트림의 에러 채널로 예외 전파
+        }
+    }
+    private void addToWaitingQueue(WebSocketSession session, int score) {
+        //매칭 실패했을때 처리
+        //대기열에 집어넣고 지속 대기 상태
+        waitingHashTable.get(score).add(session);
+    }
+
+    private SessionPair tryToMatch(WebSocketSession session, int score) {
         WebSocketSession matchTargetSession = circuitTableRow(score);
+        log.info("tryToMatch 68");
         if ( matchTargetSession != null )
             return assignRandomColor(session, matchTargetSession);
 
@@ -62,19 +103,17 @@ public class SessionManager {
             step++;
         }
 
-        //매칭 실패했을때 처리
-        //대기열에 집어넣고 지속 대기 상태
-        synchronized (waitingHashTable) {
-            waitingHashTable.get(score).add(session);
-        }
-
         return null;
     }
 
 
+
     public WebSocketSession circuitTableRow (int score) {
+        if (score < 0)
+            return null;
+
         List<WebSocketSession> sessionList = waitingHashTable.putIfAbsent(score,Collections.synchronizedList(new ArrayList<>()));
-        if (sessionList.isEmpty() || sessionList == null )
+        if (sessionList == null )
             return null;
 
         while (!sessionList.isEmpty()) {
@@ -89,31 +128,7 @@ public class SessionManager {
         }
         return null;
     }
-    public SessionPair assignRandomColor(WebSocketSession session, WebSocketSession matchTargetSession) {
-        int key = Math.random() < 0.5 ? 0 : 1;
-        return key == 1 ? new SessionPair(session, matchTargetSession) : new SessionPair(matchTargetSession, session);
-    }
-//    public void addSession (WebSocketSession session) {
-//        log.info("접근 성공" + session.getId());
-//        if (session.isOpen()) {
-//            waitingHashTable.add(session);
-//            log.info("add list");
-//        } else {
-//            log.info("session closed");
-//        }
-//
-//    }
-
-    public void sessionMatchFailed (WebSocketSession session) throws IOException {
-        messageProcessor.matchFailed(session);
-        session.close();
-    }
-    public void sessionMatchSuccess (SessionPair sessionPair) throws IOException {
-        messageProcessor.matchSuccess(sessionPair);
-        sessionPairsHashTable.put(sessionPair.getBlack(), sessionPair.getWhite());
-    }
-
-    public void removeSession(WebSocketSession session, CloseStatus status) throws Exception {
+    public void removeSession(WebSocketSession session) {
         // 클라이언트와의 연결이 종료됐을 때의 처리 로직을 구현합니다.
         WebSocketSession pairedSession = sessionPairsHashTable.get(session);
 
@@ -124,4 +139,21 @@ public class SessionManager {
             sessionPairsHashTable.remove(pairedSession);
         }
     }
+    private SessionPair assignRandomColor(WebSocketSession session, WebSocketSession matchTargetSession) {
+        int key = Math.random() < 0.5 ? 0 : 1;
+        return key == 1 ? new SessionPair(session, matchTargetSession) : new SessionPair(matchTargetSession, session);
+    }
+
+
+    //상대 정보 넘겨줘야하고
+    //
+    public void sessionMatchSuccess (SessionPair sessionPair) {
+        messageProcessor.matchSuccess(sessionPair)
+                .doOnError(Throwable::printStackTrace)
+                .subscribe();
+
+        sessionPairsHashTable.put(sessionPair.getBlack(), sessionPair.getWhite());
+    }
+
+
 }

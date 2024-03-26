@@ -2,15 +2,11 @@ package com.gamza.chess.config.socket;
 
 
 import com.gamza.chess.jwt.JwtProvider;
-import com.gamza.chess.service.gameservice.oldchess.GameMainService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.server.ServerHttpRequest;
-import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.config.annotation.*;
-import org.springframework.web.socket.server.HandshakeInterceptor;
 
 import java.util.Map;
 
@@ -20,7 +16,6 @@ import java.util.Map;
 public class WebSocketConfig implements WebSocketConfigurer {
     private final JwtProvider jwtProvider;
     private final SessionManager sessionManager;
-    private final MessageProcessor messageProcessor;
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
         registry.addHandler(handler(), "/game/start")
@@ -29,7 +24,7 @@ public class WebSocketConfig implements WebSocketConfigurer {
     }
     @Bean
     public WebSocketHandler handler(){
-        return new GameSocketHandler(sessionManager, messageProcessor);
+        return new GameSocketHandler(sessionManager);
     }
 
 }

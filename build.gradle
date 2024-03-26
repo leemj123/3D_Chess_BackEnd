@@ -50,6 +50,9 @@ dependencies {
 	//rust logic lib
 	implementation fileTree(dir: 'libs',includes: ['*.jar'])
 
+	implementation('org.springframework.boot:spring-boot-starter-webflux')
+
+
 }
 
 tasks.named('test') {
