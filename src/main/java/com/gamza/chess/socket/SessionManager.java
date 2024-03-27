@@ -1,8 +1,8 @@
-package com.gamza.chess.config.socket;
+package com.gamza.chess.socket;
 
 import club.gamza.warpsquare.engine.Game;
-import com.gamza.chess.config.socket.dto.SessionPair;
-import com.gamza.chess.config.socket.dto.GameInitSendDto;
+import com.gamza.chess.socket.dto.SessionPair;
+import com.gamza.chess.socket.dto.GameInitSendDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;

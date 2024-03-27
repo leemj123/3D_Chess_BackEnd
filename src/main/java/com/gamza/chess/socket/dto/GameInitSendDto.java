@@ -1,11 +1,10 @@
-package com.gamza.chess.config.socket.dto;
+package com.gamza.chess.socket.dto;
 
 import com.gamza.chess.Enum.ACTION;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.ArrayList;
 import java.util.List;
 @Setter
 @Getter

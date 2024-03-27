@@ -1,4 +1,4 @@
-package com.gamza.chess.config.socket;
+package com.gamza.chess.socket;
 
 import com.gamza.chess.jwt.JwtProvider;
 import org.springframework.http.server.ServerHttpRequest;

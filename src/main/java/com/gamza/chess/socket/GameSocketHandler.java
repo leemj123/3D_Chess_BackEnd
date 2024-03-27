@@ -1,4 +1,4 @@
-package com.gamza.chess.config.socket;
+package com.gamza.chess.socket;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
