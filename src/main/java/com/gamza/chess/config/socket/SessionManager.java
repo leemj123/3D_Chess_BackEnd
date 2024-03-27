@@ -156,6 +156,7 @@ public class SessionManager {
                 .subscribe();
 
         sessionPairsHashTable.put(sessionPair.getBlack(), sessionPair.getWhite());
+        sessionPairsHashTable.put(sessionPair.getWhite(), sessionPair.getBlack());
 
         //유저 칼라 전송
         messageProcessor.userColorSender(sessionPair)
