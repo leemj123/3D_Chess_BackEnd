@@ -2,7 +2,7 @@ package com.gamza.chess.piece;
 
 import com.gamza.chess.Enum.Color;
 import com.gamza.chess.board.Point;
-import com.gamza.chess.config.socket.dto.PieceInfoDto;
+import com.gamza.chess.socket.dto.PieceInfoDto;
 import lombok.Getter;
 import java.util.ArrayList;
 import java.util.List;

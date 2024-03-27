@@ -1,11 +1,11 @@
-package com.gamza.chess.config.socket;
+package com.gamza.chess.socket;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import com.gamza.chess.config.socket.dto.MatchedUserInfo;
-import com.gamza.chess.config.socket.dto.PlayerColor;
-import com.gamza.chess.config.socket.dto.SessionPair;
-import com.gamza.chess.config.socket.dto.GameInitSendDto;
+import com.gamza.chess.socket.dto.MatchedUserInfo;
+import com.gamza.chess.socket.dto.PlayerColor;
+import com.gamza.chess.socket.dto.SessionPair;
+import com.gamza.chess.socket.dto.GameInitSendDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.TextMessage;

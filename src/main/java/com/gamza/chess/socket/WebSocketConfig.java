@@ -1,4 +1,4 @@
-package com.gamza.chess.config.socket;
+package com.gamza.chess.socket;
 
 
 import com.gamza.chess.jwt.JwtProvider;
@@ -7,8 +7,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.config.annotation.*;
-
-import java.util.Map;
 
 @Configuration
 @EnableWebSocket

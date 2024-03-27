@@ -1,7 +1,7 @@
-package com.gamza.chess.config.socket;
+package com.gamza.chess.socket;
 
 import club.gamza.warpsquare.engine.Piece;
-import com.gamza.chess.config.socket.dto.PieceLocation;
+import com.gamza.chess.socket.dto.PieceLocation;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.Arrays;

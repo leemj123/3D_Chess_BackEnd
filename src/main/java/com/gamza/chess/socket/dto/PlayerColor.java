@@ -1,4 +1,4 @@
-package com.gamza.chess.config.socket.dto;
+package com.gamza.chess.socket.dto;
 
 import com.gamza.chess.Enum.ACTION;
 import lombok.Getter;
