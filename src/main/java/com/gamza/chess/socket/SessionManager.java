@@ -1,11 +1,11 @@
 package com.gamza.chess.socket;
 
-import club.gamza.warpsquare.engine.Game;
+import com.gamza.chess.socket.dto.GameRoom;
 import com.gamza.chess.socket.dto.SessionPair;
-import com.gamza.chess.socket.dto.GameInitSendDto;
+import com.gamza.chess.socket.messageform.PieceInitSendForm;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Service;
 import org.springframework.web.socket.WebSocketSession;
 import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
@@ -16,19 +16,14 @@ import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Configuration
+@Service
 @RequiredArgsConstructor
 @Slf4j
 public class SessionManager {
     private final MessageProcessor messageProcessor;
-    private final GameLogicService gameLogicService;
+    private final RoomManager roomManager;
     private final ConcurrentHashMap<Integer, List<WebSocketSession>> waitingHashTable = new ConcurrentHashMap<>();
-    private final Map<WebSocketSession, WebSocketSession> sessionPairsHashTable = new HashMap<>();
-    private final static Map<String, Game> gameStatus = new HashMap<>();
 
-    //동시성 컨트롤 문제
-
-    //aging 처리가 약간 가라느낌?
 
     public Mono<SessionPair> sessionMatch(WebSocketSession session, int score) {
         return Mono.create(sink -> {
@@ -131,55 +126,58 @@ public class SessionManager {
         }
         return null;
     }
-    public void removeSession(WebSocketSession session) {
-        // 클라이언트와의 연결이 종료됐을 때의 처리 로직을 구현합니다.
-        WebSocketSession pairedSession = sessionPairsHashTable.get(session);
 
-
-        // 기존 세션과 매핑된 세션 정보 제거
-        sessionPairsHashTable.remove(session);
-        if (pairedSession != null) {
-            sessionPairsHashTable.remove(pairedSession);
-        }
-    }
     private SessionPair assignRandomColor(WebSocketSession session, WebSocketSession matchTargetSession) {
         int key = Math.random() < 0.5 ? 0 : 1;
         return key == 1 ? new SessionPair(session, matchTargetSession) : new SessionPair(matchTargetSession, session);
     }
 
+    public void removeSession(WebSocketSession disconnectedSession) {
+        String roomId = roomManager.getRoomIdBySessionId(disconnectedSession.getId());
+        if (roomId == null)
+            return;
 
-    //상대 정보 넘겨줘야하고
-    //
+        GameRoom gameRoom = roomManager.getRoomByRoomId(roomId);
+        //게임룸이 없어지지 않았을 경우에 승리 처리
+        if ( gameRoom != null ) {
+            switch (roomManager.isWhite(disconnectedSession, gameRoom.getSessionPair())) {
+                case 1: {
+                    messageProcessor.surrenderWin( gameRoom.getSessionPair().getBlack() )
+                            .doOnError(e -> log.error("surrenderWin error \n" +e))
+                            .subscribe();
+                    /*
+                        결과 저장 로직 추가해야함
+                     */
+
+                }
+                case 0: {
+                    messageProcessor.surrenderWin( gameRoom.getSessionPair().getWhite() )
+                            .doOnError(e -> log.error("surrenderWin error \n" +e))
+                            .subscribe();
+                }
+                default:
+            }
+        }
+
+    }
+
     public void sessionMatchSuccess (SessionPair sessionPair) {
         messageProcessor.matchSuccess(sessionPair)
                 .doOnError(Throwable::printStackTrace)
                 .subscribe();
 
-        sessionPairsHashTable.put(sessionPair.getBlack(), sessionPair.getWhite());
-        sessionPairsHashTable.put(sessionPair.getWhite(), sessionPair.getBlack());
 
-        //유저 칼라 전송
-        messageProcessor.userColorSender(sessionPair)
-                .doOnError(e -> log.error("userColorSender error \n"+e))
-                .subscribe();
-        //상대유저 정보 전송
-        messageProcessor.matchedUserInfoSender(sessionPair)
-                .doOnError(e -> log.error("userInfoSender error \n"+e))
+        GameRoom gameRoom =  roomManager.addRoom(sessionPair);
+
+        messageProcessor.roomInfoSender(gameRoom)
+                .doOnError(e -> log.error("roomInfoSender error \n"+e))
                 .subscribe();
 
-        Game game = new Game();
-        gameStatus.put(sessionPair.getBlack().getId(), game);
-        gameStatus.put(sessionPair.getWhite().getId(), game);
-
-        GameInitSendDto gameInitSendDto = new GameInitSendDto(gameLogicService.getPieceLocationList(game.getPieces()));
-
-
-        messageProcessor.gameInitInfoSender(sessionPair, gameInitSendDto)
+        PieceInitSendForm pieceInitSendForm = new PieceInitSendForm(roomManager.getPieceList(gameRoom));
+        messageProcessor.gameInitInfoSender(sessionPair, pieceInitSendForm)
                 .doOnError(e -> log.error("gameInitInfoSender error \n"+e))
                 .subscribe();
 
     }
-
-
 
 }

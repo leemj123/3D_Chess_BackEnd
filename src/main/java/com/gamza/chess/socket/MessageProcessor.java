@@ -2,19 +2,23 @@ package com.gamza.chess.socket;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import com.gamza.chess.socket.dto.MatchedUserInfo;
-import com.gamza.chess.socket.dto.PlayerColor;
+import com.gamza.chess.Enum.ACTION;
+import com.gamza.chess.Enum.Color;
+import com.gamza.chess.Enum.Tier;
+import com.gamza.chess.socket.dto.GameRoom;
+import com.gamza.chess.socket.messageform.RoomInfoForm;
 import com.gamza.chess.socket.dto.SessionPair;
-import com.gamza.chess.socket.dto.GameInitSendDto;
+import com.gamza.chess.socket.messageform.PieceInitSendForm;
+import com.gamza.chess.socket.messageform.WinForm;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Service;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 
-@Configuration
+@Service
 @RequiredArgsConstructor
 public class MessageProcessor {
     ObjectMapper objectMapper = new ObjectMapper();
@@ -40,9 +44,9 @@ public class MessageProcessor {
         session.sendMessage(new TextMessage("세션 강제 종료"));
 
     }
-    public Mono<Void> gameInitInfoSender (SessionPair sessionPair, GameInitSendDto gameInitSendDto) {
+    public Mono<Void> gameInitInfoSender (SessionPair sessionPair, PieceInitSendForm pieceInitSendForm) {
         try {
-            String initJson = objectMapper.writeValueAsString(gameInitSendDto);
+            String initJson = objectMapper.writeValueAsString(pieceInitSendForm);
             sessionPair.getWhite().sendMessage(new TextMessage(initJson));
             sessionPair.getBlack().sendMessage(new TextMessage(initJson));
             return Mono.empty();
@@ -51,10 +55,21 @@ public class MessageProcessor {
             return Mono.error(e);
         }
     }
-    public Mono<Void> userColorSender(SessionPair sessionPair) {
+    public Mono<Void> roomInfoSender(GameRoom gameRoom) {
         try {
-            sessionPair.getWhite().sendMessage(new TextMessage(objectMapper.writeValueAsString(new PlayerColor("white"))));
-            sessionPair.getBlack().sendMessage(new TextMessage(objectMapper.writeValueAsString(new PlayerColor("black"))));
+            RoomInfoForm forWhite = new RoomInfoForm(gameRoom.getRoomId()
+                    , Color.White
+                    ,gameRoom.getSessionPair().getBlack().getAttributes());
+
+            RoomInfoForm forBlack = new RoomInfoForm(gameRoom.getRoomId()
+                    ,Color.Black
+                    ,gameRoom.getSessionPair().getWhite().getAttributes());
+
+            gameRoom.getSessionPair().getWhite()
+                    .sendMessage(new TextMessage(objectMapper.writeValueAsString(forWhite)));
+
+            gameRoom.getSessionPair().getBlack()
+                    .sendMessage(new TextMessage(objectMapper.writeValueAsString(forBlack)));
 
             return Mono.empty();
         } catch (IOException e) {
@@ -63,19 +78,21 @@ public class MessageProcessor {
 
 
     }
-    public Mono<Void> matchedUserInfoSender(SessionPair sessionPair) {
+
+    public Mono<Void> surrenderWin(WebSocketSession session) {
         try {
-            String whiteInfoJson = objectMapper.writeValueAsString(new MatchedUserInfo(sessionPair.getWhite().getAttributes()));
-            String blackInfoJson = objectMapper.writeValueAsString(new MatchedUserInfo(sessionPair.getBlack().getAttributes()));
+            WinForm winForm = WinForm.builder()
+                    .action(ACTION.WIN)
+                    .message("상대가 도망쳤습니다, 승리!")
+                    .beforeTier(Tier.valueOf((String) session.getAttributes().get("tier")))
+                    .beforeScore((int) session.getAttributes().get("calScore"))
+                    .build();
 
-            sessionPair.getBlack().sendMessage(new TextMessage(whiteInfoJson));
-            sessionPair.getWhite().sendMessage(new TextMessage(blackInfoJson));
-
+            session.sendMessage(new TextMessage(objectMapper.writeValueAsString(winForm)));
             return Mono.empty();
         } catch (IOException e) {
             return Mono.error(e);
         }
-
-
     }
+
 }

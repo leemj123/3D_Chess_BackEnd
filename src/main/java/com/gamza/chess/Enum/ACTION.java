@@ -1,9 +1,8 @@
 package com.gamza.chess.Enum;
 
 public enum ACTION {
-    INIT,
-    COLOR,
-    MATCHED_USER,
+    PIECE_STATE,
+    ROOM_STATE,
     SURRENDER,
     WIN,
     DRAW,

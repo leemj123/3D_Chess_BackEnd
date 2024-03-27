@@ -32,7 +32,6 @@ public class GameSocketHandler extends TextWebSocketHandler {
     }
 
 
-
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
         sessionManager.removeSession(session);
