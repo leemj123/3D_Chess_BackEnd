@@ -10,14 +10,10 @@ import lombok.Setter;
 @Setter
 public class PieceLocation {
     private PieceType pieceType;
-    private Rank rank;
-    private File file;
-    private Level level;
+    private Square square;
 
     public PieceLocation (PieceType pieceType,Square pieceSquare) {
         this.pieceType = pieceType;
-        this.rank = pieceSquare.getRank();
-        this.file = pieceSquare.getFile();
-        this.level = pieceSquare.getLevel();
+        this.square = pieceSquare;
     }
 }

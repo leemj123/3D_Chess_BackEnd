@@ -2,7 +2,7 @@ package com.gamza.chess.socket;
 
 import com.gamza.chess.socket.dto.GameRoom;
 import com.gamza.chess.socket.dto.SessionPair;
-import com.gamza.chess.socket.messageform.PieceInitSendForm;
+import com.gamza.chess.socket.messageform.PieceMoveForm;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -104,8 +104,6 @@ public class SessionManager {
         return null;
     }
 
-
-
     public WebSocketSession circuitTableRow (int score) {
         if (score < 0)
             return null;
@@ -140,22 +138,18 @@ public class SessionManager {
         GameRoom gameRoom = roomManager.getRoomByRoomId(roomId);
         //게임룸이 없어지지 않았을 경우에 승리 처리
         if ( gameRoom != null ) {
-            switch (roomManager.isWhite(disconnectedSession, gameRoom.getSessionPair())) {
-                case 1: {
-                    messageProcessor.surrenderWin( gameRoom.getSessionPair().getBlack() )
-                            .doOnError(e -> log.error("surrenderWin error \n" +e))
-                            .subscribe();
+            boolean white = roomManager.isWhite(disconnectedSession, gameRoom.getSessionPair());
+            if (white) {
+                messageProcessor.surrenderWin(gameRoom.getSessionPair().getBlack())
+                        .doOnError(e -> log.error("surrenderWin error \n" + e))
+                        .subscribe();
                     /*
                         결과 저장 로직 추가해야함
                      */
-
-                }
-                case 0: {
-                    messageProcessor.surrenderWin( gameRoom.getSessionPair().getWhite() )
-                            .doOnError(e -> log.error("surrenderWin error \n" +e))
-                            .subscribe();
-                }
-                default:
+            } else  {
+                messageProcessor.surrenderWin(gameRoom.getSessionPair().getWhite())
+                        .doOnError(e -> log.error("surrenderWin error \n" + e))
+                        .subscribe();
             }
         }
 
@@ -173,11 +167,25 @@ public class SessionManager {
                 .doOnError(e -> log.error("roomInfoSender error \n"+e))
                 .subscribe();
 
-        PieceInitSendForm pieceInitSendForm = new PieceInitSendForm(roomManager.getPieceList(gameRoom));
-        messageProcessor.gameInitInfoSender(sessionPair, pieceInitSendForm)
-                .doOnError(e -> log.error("gameInitInfoSender error \n"+e))
-                .subscribe();
-
     }
+    public void textMessageJsonParesError(WebSocketSession session) {
+        messageProcessor.jsonParesErrorSender(session)
+                .doOnError(e -> log.error("jsonParesErrorSender error \n"+e))
+                .subscribe();
+    }
+    public void moveRequest(WebSocketSession session, PieceMoveForm pieceMoveForm) {
+        String roomId = roomManager.getRoomIdBySessionId(session.getId());
+        if (roomId == null) return;
 
+        GameRoom gameRoom = roomManager.getRoomByRoomId(roomId);
+        if (roomManager.PieceMoveRequest(pieceMoveForm, gameRoom)) {
+            messageProcessor.successToRequest(session)
+                    .doOnError(e -> log.error("move Request error \n" +e))
+                    .subscribe();
+        } else {
+            messageProcessor.illegalRequest(session)
+                    .doOnError(e -> log.error("move Request error \n" +e))
+                    .subscribe();
+        }
+    }
 }

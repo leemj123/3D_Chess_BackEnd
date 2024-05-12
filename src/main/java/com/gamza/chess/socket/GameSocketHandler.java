@@ -1,5 +1,10 @@
 package com.gamza.chess.socket;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.gamza.chess.Enum.ACTION;
+import com.gamza.chess.socket.messageform.PieceMoveForm;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -13,6 +18,7 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 @RequiredArgsConstructor
 public class GameSocketHandler extends TextWebSocketHandler {
     private final SessionManager sessionManager;
+    private final ObjectMapper obj;
 
 
     @Override
@@ -39,7 +45,23 @@ public class GameSocketHandler extends TextWebSocketHandler {
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) {
+        JsonNode rootNode;
+        ACTION action;
+        try {
+            rootNode = obj.readTree(message.getPayload());
+            action = ACTION.valueOf(rootNode.get("action").asText());
 
+            switch (action) {
+                case MOVE:
+                    PieceMoveForm pieceMoveForm = obj.treeToValue(rootNode, PieceMoveForm.class);
+                    sessionManager.moveRequest(session, pieceMoveForm);
+                case SURRENDER:
 
+                case SYNCHRONIZATION:
+        }
+        } catch (JsonProcessingException e) {
+            sessionManager.textMessageJsonParesError(session);
+            return;
+        }
     }
 }

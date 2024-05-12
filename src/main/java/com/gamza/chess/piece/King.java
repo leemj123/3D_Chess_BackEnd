@@ -1,7 +1,7 @@
 package com.gamza.chess.piece;
 
 import com.gamza.chess.board.Point;
-import com.gamza.chess.socket.dto.PieceInfoDto;
+import com.gamza.chess.dto.PieceInfoDto;
 
 import java.util.List;
 

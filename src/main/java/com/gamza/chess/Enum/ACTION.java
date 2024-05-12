@@ -6,6 +6,9 @@ public enum ACTION {
     SURRENDER,
     WIN,
     DRAW,
-    LOSE
+    LOSE,
+    MOVE,
+    ERROR,
+    SYNCHRONIZATION
 
 }

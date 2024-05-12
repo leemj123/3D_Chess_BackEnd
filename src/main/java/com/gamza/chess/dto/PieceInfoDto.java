@@ -1,4 +1,4 @@
-package com.gamza.chess.socket.dto;
+package com.gamza.chess.dto;
 
 import com.gamza.chess.piece.Piece;
 import lombok.Getter;

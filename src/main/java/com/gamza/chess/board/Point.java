@@ -1,6 +1,6 @@
 package com.gamza.chess.board;
 
-import com.gamza.chess.socket.dto.PieceInfoDto;
+import com.gamza.chess.dto.PieceInfoDto;
 import lombok.Getter;
 
 @Getter

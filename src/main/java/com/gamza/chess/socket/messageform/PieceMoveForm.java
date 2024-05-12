@@ -1,17 +1,13 @@
-package com.gamza.chess.socket.dto;
+package com.gamza.chess.socket.messageform;
 
 import club.gamza.warpsquare.engine.File;
 import club.gamza.warpsquare.engine.Level;
 import club.gamza.warpsquare.engine.PieceType;
 import club.gamza.warpsquare.engine.Rank;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-@NoArgsConstructor
 @Getter
-@Setter
-public class PieceMoveDto {
+public class PieceMoveForm {
     private PieceType pieceType;
     private Rank currentRank;
     private File currentFile;
