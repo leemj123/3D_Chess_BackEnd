@@ -6,8 +6,11 @@ import com.gamza.chess.Enum.ACTION;
 import com.gamza.chess.Enum.Color;
 import com.gamza.chess.Enum.Tier;
 import com.gamza.chess.socket.dto.GameRoom;
+import com.gamza.chess.socket.dto.PieceLocation;
+import com.gamza.chess.socket.messageform.PieceInitSendForm;
 import com.gamza.chess.socket.messageform.RoomInfoForm;
 import com.gamza.chess.socket.dto.SessionPair;
+import com.gamza.chess.socket.messageform.SyncForm;
 import com.gamza.chess.socket.messageform.WinForm;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,6 +19,7 @@ import org.springframework.web.socket.WebSocketSession;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -54,22 +58,31 @@ public class MessageProcessor {
 //            return Mono.error(e);
 //        }
 //    }
-    public Mono<Void> roomInfoSender(GameRoom gameRoom) {
+public Mono<Void> roomInfoSender(GameRoom gameRoom) {
+    try {
+        RoomInfoForm forWhite = new RoomInfoForm(gameRoom.getRoomId(), Color.White, gameRoom.getSessionPair());
+
+        RoomInfoForm forBlack = new RoomInfoForm(gameRoom.getRoomId(), Color.Black, gameRoom.getSessionPair());
+
+        gameRoom.getSessionPair().getWhite()
+                .sendMessage(new TextMessage(objectMapper.writeValueAsString(forWhite)));
+
+        gameRoom.getSessionPair().getBlack()
+                .sendMessage(new TextMessage(objectMapper.writeValueAsString(forBlack)));
+
+        return Mono.empty();
+    } catch (IOException e) {
+        return Mono.error(e);
+    }
+}
+    public Mono<Void> piecesInfoSender(WebSocketSession session, PieceInitSendForm pieceInitSendForm) {
         try {
-            RoomInfoForm forWhite = new RoomInfoForm(gameRoom.getRoomId(), Color.White, gameRoom.getSessionPair());
-
-            RoomInfoForm forBlack = new RoomInfoForm(gameRoom.getRoomId(), Color.Black, gameRoom.getSessionPair());
-
-            gameRoom.getSessionPair().getWhite()
-                    .sendMessage(new TextMessage(objectMapper.writeValueAsString(forWhite)));
-
-            gameRoom.getSessionPair().getBlack()
-                    .sendMessage(new TextMessage(objectMapper.writeValueAsString(forBlack)));
-
+            session.sendMessage(new TextMessage(objectMapper.writeValueAsString(pieceInitSendForm)));
             return Mono.empty();
-        } catch (IOException e) {
+        }catch (IOException e) {
             return Mono.error(e);
         }
+
     }
 
     public Mono<Void> surrenderWin(WebSocketSession session) {
@@ -87,19 +100,19 @@ public class MessageProcessor {
             return Mono.error(e);
         }
     }
-    public Mono<Void> illegalRequest (WebSocketSession session) {
+    public Mono<Void> moveResopnse(WebSocketSession session, Integer status) {
         try {
-            session.sendMessage(new TextMessage("false"));
+            session.sendMessage(new TextMessage(status.toString()));
             return Mono.empty();
         }  catch (IOException e) {
             return Mono.error(e);
         }
     }
-    public Mono<Void> successToRequest (WebSocketSession session) {
+    public Mono<Void> matcherSync(WebSocketSession session, SyncForm syncForm) {
         try {
-            session.sendMessage(new TextMessage("true"));
+            session.sendMessage(new TextMessage(objectMapper.writeValueAsString(syncForm)));
             return Mono.empty();
-        } catch (IOException e) {
+        }  catch (IOException e) {
             return Mono.error(e);
         }
     }

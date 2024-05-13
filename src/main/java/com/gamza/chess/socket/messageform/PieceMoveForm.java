@@ -15,4 +15,5 @@ public class PieceMoveForm {
     private Rank toMoveRank;
     private File toMoveFile;
     private Level toMoveLevel;
+
 }

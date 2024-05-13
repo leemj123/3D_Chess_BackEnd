@@ -1,8 +1,14 @@
 package com.gamza.chess.socket;
 
+import club.gamza.warpsquare.engine.Piece;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gamza.chess.socket.dto.GameRoom;
+import com.gamza.chess.socket.dto.PieceLocation;
 import com.gamza.chess.socket.dto.SessionPair;
+import com.gamza.chess.socket.messageform.PieceInitSendForm;
 import com.gamza.chess.socket.messageform.PieceMoveForm;
+import com.gamza.chess.socket.messageform.SyncForm;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -160,11 +166,10 @@ public class SessionManager {
                 .doOnError(Throwable::printStackTrace)
                 .subscribe();
 
-
         GameRoom gameRoom =  roomManager.addRoom(sessionPair);
 
         messageProcessor.roomInfoSender(gameRoom)
-                .doOnError(e -> log.error("roomInfoSender error \n"+e))
+                .doOnError(e -> log.error("move Request error \n" +e))
                 .subscribe();
 
     }
@@ -176,16 +181,35 @@ public class SessionManager {
     public void moveRequest(WebSocketSession session, PieceMoveForm pieceMoveForm) {
         String roomId = roomManager.getRoomIdBySessionId(session.getId());
         if (roomId == null) return;
-
+        int responseValue;
         GameRoom gameRoom = roomManager.getRoomByRoomId(roomId);
-        if (roomManager.PieceMoveRequest(pieceMoveForm, gameRoom)) {
-            messageProcessor.successToRequest(session)
+
+        if (!roomManager.turnChecker(session.getId(),gameRoom)) {
+            responseValue = 802;
+            messageProcessor.moveResopnse(session, responseValue)
                     .doOnError(e -> log.error("move Request error \n" +e))
                     .subscribe();
-        } else {
-            messageProcessor.illegalRequest(session)
-                    .doOnError(e -> log.error("move Request error \n" +e))
-                    .subscribe();
+            return;
         }
+
+
+        responseValue = roomManager.PieceMoveRequest(pieceMoveForm, gameRoom );
+
+        messageProcessor.moveResopnse(session, responseValue)
+                .doOnError(e -> log.error("move Request error \n" +e))
+                .subscribe();
+        messageProcessor.matcherSync(session, new SyncForm(pieceMoveForm))
+                .doOnError(e -> log.error("move Request error \n" +e))
+                .subscribe();
+
+    }
+    public void getPiecesState(WebSocketSession session) throws JsonProcessingException {
+        String roomId = roomManager.getRoomIdBySessionId(session.getId());
+        GameRoom gameRoom = roomManager.getRoomByRoomId(roomId);
+        List<PieceLocation> list = roomManager.getPieceList(gameRoom);
+
+        messageProcessor.piecesInfoSender(session, new PieceInitSendForm(list))
+                .doOnError(e -> log.error("roomInfoSender error \n"+e))
+                .subscribe();
     }
 }

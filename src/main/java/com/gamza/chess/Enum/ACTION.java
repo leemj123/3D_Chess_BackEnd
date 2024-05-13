@@ -8,7 +8,8 @@ public enum ACTION {
     DRAW,
     LOSE,
     MOVE,
-    ERROR,
-    SYNCHRONIZATION
+    BOARD_MOVE,
+    RE_SYNC,
+    SYNC,
 
 }

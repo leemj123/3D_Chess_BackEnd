@@ -8,17 +8,17 @@ spring:
     password: ENC(ZB7jWXUgNnDyQvcdPkfL+oE10CWPacrjx1gr3975bn7JTwgM5xH/LwIGn0UTlY10)
   data:
     mongodb:
-      uri: ENC(J+7pUy+hbDnvche4sY5MLGTySR5BA+BraZMJWAaWwXyPMX5Vh7d+THiaoEgg7P15Gu/Vvw037wgewd44ynYlHhOeJ751yVwWI/ZlEeLrpaE=)
-#      host: mongo
-#      port: 27017
-#      database: chess
-#      username: ENC(vP0ghtRf6x6XOA1Hj1nMdxYuDiV8/u4uKU8AizIIrfx9DZudPOQrUFz6xdVpPyUW)
-#      password: ENC(w2fu9hTNo3cS4E7XUIVbrZ78rNYFXCEgY3yuvfJjdfROoNOfKQjFFB3f37GkkAeT)
+      #uri: ENC(J+7pUy+hbDnvche4sY5MLGTySR5BA+BraZMJWAaWwXyPMX5Vh7d+THiaoEgg7P15Gu/Vvw03z7wgewd44ynYlHhOeJ751yVwWI/ZlEeLrpaE=)
+      uri: mongodb://3dchess:over1324ksy@3dchess.shop:27017/admin
 
+logging:
+  level:
+    root: INFO
+    com.gamza.chess.config.socket: DEBUG
 jwt:
   secretKey:
     ENC(KmqxTG8MaxW4NhHwIzB9gngw0LgN0SiRuts0b6CNZRx5pJWAo0d/U/VQ3H7buN0H0rUH5y7bUsuLwU5EOLSyeOnl/cXb1Dh9cEGZXaF0ic8=)
-  accessExpiration: 1800000
+  accessExpiration: 18000000
   refreshExpiration: 604800000
 jasypt:
   encryptor:

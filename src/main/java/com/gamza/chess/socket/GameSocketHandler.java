@@ -55,9 +55,16 @@ public class GameSocketHandler extends TextWebSocketHandler {
                 case MOVE:
                     PieceMoveForm pieceMoveForm = obj.treeToValue(rootNode, PieceMoveForm.class);
                     sessionManager.moveRequest(session, pieceMoveForm);
+                    break;
+                case BOARD_MOVE:
                 case SURRENDER:
 
-                case SYNCHRONIZATION:
+                case RE_SYNC:
+
+                case PIECE_STATE:
+                    sessionManager.getPiecesState(session);
+
+
         }
         } catch (JsonProcessingException e) {
             sessionManager.textMessageJsonParesError(session);
