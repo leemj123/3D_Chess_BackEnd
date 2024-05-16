@@ -8,7 +8,7 @@ spring:
     password: ENC(ZB7jWXUgNnDyQvcdPkfL+oE10CWPacrjx1gr3975bn7JTwgM5xH/LwIGn0UTlY10)
   data:
     mongodb:
-      uri: ENC(J+7pUy+hbDnvche4sY5MLGTySR5BA+BraZMJWAaWwXyPMX5Vh7d+THiaoEgg7P15Gu/Vvw037wgewd44ynYlHhOeJ751yVwWI/ZlEeLrpaE=)
+      uri: ENC(UtZwLs3nLCL05kCgiIm3DtW2flqTXcmY1yBBMiu1bXJSCQ36D6E5FbqcqMGqV2cIxemNJgNCZAILrjFhNQNiZuthZlNIWu7GL39As0lXnMw3d10aebAyGx8qQVDTzn+f)
 
 
 logging:
