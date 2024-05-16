@@ -63,9 +63,10 @@ public class GameSocketHandler extends TextWebSocketHandler {
 
                 case PIECE_STATE:
                     sessionManager.getPiecesState(session);
+                    break;
 
 
-        }
+            }
         } catch (JsonProcessingException e) {
             sessionManager.textMessageJsonParesError(session);
             return;

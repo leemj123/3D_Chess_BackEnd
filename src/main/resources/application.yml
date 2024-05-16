@@ -8,8 +8,8 @@ spring:
     password: ENC(ZB7jWXUgNnDyQvcdPkfL+oE10CWPacrjx1gr3975bn7JTwgM5xH/LwIGn0UTlY10)
   data:
     mongodb:
-      #uri: ENC(J+7pUy+hbDnvche4sY5MLGTySR5BA+BraZMJWAaWwXyPMX5Vh7d+THiaoEgg7P15Gu/Vvw03z7wgewd44ynYlHhOeJ751yVwWI/ZlEeLrpaE=)
-      uri: mongodb://3dchess:over1324ksy@3dchess.shop:27017/admin
+      uri: ENC(J+7pUy+hbDnvche4sY5MLGTySR5BA+BraZMJWAaWwXyPMX5Vh7d+THiaoEgg7P15Gu/Vvw037wgewd44ynYlHhOeJ751yVwWI/ZlEeLrpaE=)
+
 
 logging:
   level:
