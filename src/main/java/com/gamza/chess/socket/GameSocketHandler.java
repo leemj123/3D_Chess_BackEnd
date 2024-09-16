@@ -27,6 +27,7 @@ public class GameSocketHandler extends TextWebSocketHandler {
 
         int score = (int) session.getAttributes().get("score");
         //매칭시도 비동기
+        log.info("ConnectionEstablished");
         sessionManager.sessionMatch(session,score)
                 .doOnSuccess(sessionPair -> {
                     if (sessionPair == null)
