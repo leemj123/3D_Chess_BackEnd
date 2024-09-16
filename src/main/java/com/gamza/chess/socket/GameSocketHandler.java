@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gamza.chess.Enum.ACTION;
+import com.gamza.chess.socket.messageform.BoardMoveForm;
 import com.gamza.chess.socket.messageform.PieceMoveForm;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -57,6 +58,9 @@ public class GameSocketHandler extends TextWebSocketHandler {
                     sessionManager.moveRequest(session, pieceMoveForm);
                     break;
                 case BOARD_MOVE:
+                    BoardMoveForm boardMoveForm = obj.treeToValue(rootNode, BoardMoveForm.class);
+                    sessionManager.boardMoveRequest(session, boardMoveForm);
+                    break;
                 case SURRENDER:
 
                 case RE_SYNC:

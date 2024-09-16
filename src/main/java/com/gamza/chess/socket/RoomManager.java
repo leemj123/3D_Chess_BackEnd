@@ -1,7 +1,5 @@
 package com.gamza.chess.socket;
 
-import club.gamza.warpsquare.engine.BoardMove;
-import club.gamza.warpsquare.engine.Color;
 import club.gamza.warpsquare.engine.PieceMove;
 import club.gamza.warpsquare.engine.Square;
 import com.gamza.chess.socket.dto.GameRoom;
@@ -113,4 +111,8 @@ public class RoomManager {
         );
     }
 
+//    public int boardMoveRequest(BoardMoveForm boardMoveForm, GameRoom gameRoom) {
+//        BoardMove
+//        gameRoom.getGame().pushBoardMove()
+//    }
 }

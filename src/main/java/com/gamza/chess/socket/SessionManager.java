@@ -1,11 +1,10 @@
 package com.gamza.chess.socket;
 
-import club.gamza.warpsquare.engine.Piece;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gamza.chess.socket.dto.GameRoom;
 import com.gamza.chess.socket.dto.PieceLocation;
 import com.gamza.chess.socket.dto.SessionPair;
+import com.gamza.chess.socket.messageform.BoardMoveForm;
 import com.gamza.chess.socket.messageform.PieceInitSendForm;
 import com.gamza.chess.socket.messageform.PieceMoveForm;
 import com.gamza.chess.socket.messageform.SyncForm;
@@ -185,7 +184,7 @@ public class SessionManager {
         GameRoom gameRoom = roomManager.getRoomByRoomId(roomId);
 
         if (!roomManager.turnChecker(session.getId(),gameRoom)) {
-            responseValue = 802;
+            responseValue = 820;
             messageProcessor.moveResopnse(session, responseValue)
                     .doOnError(e -> log.error("move Request error \n" +e))
                     .subscribe();
@@ -193,14 +192,21 @@ public class SessionManager {
         }
 
 
-        responseValue = roomManager.PieceMoveRequest(pieceMoveForm, gameRoom );
+        responseValue = roomManager.PieceMoveRequest( pieceMoveForm, gameRoom );
 
         messageProcessor.moveResopnse(session, responseValue)
                 .doOnError(e -> log.error("move Request error \n" +e))
                 .subscribe();
-        messageProcessor.matcherSync(session, new SyncForm(pieceMoveForm))
-                .doOnError(e -> log.error("move Request error \n" +e))
-                .subscribe();
+        if (gameRoom.getSessionPair().getWhite().getId().equals(session.getId())) {
+            messageProcessor.matcherSync(gameRoom.getSessionPair().getBlack(), new SyncForm(pieceMoveForm))
+                    .doOnError(e -> log.error("move Request error \n" +e))
+                    .subscribe();
+        } else {
+            messageProcessor.matcherSync(gameRoom.getSessionPair().getWhite(), new SyncForm(pieceMoveForm))
+                    .doOnError(e -> log.error("move Request error \n" +e))
+                    .subscribe();
+        }
+
 
     }
     public void getPiecesState(WebSocketSession session) throws JsonProcessingException {
@@ -211,5 +217,22 @@ public class SessionManager {
         messageProcessor.piecesInfoSender(session, new PieceInitSendForm(list))
                 .doOnError(e -> log.error("roomInfoSender error \n"+e))
                 .subscribe();
+    }
+
+    public void boardMoveRequest(WebSocketSession session, BoardMoveForm boardMoveForm) {
+        String roomId = roomManager.getRoomIdBySessionId(session.getId());
+        if (roomId == null) return;
+        int responseValue;
+        GameRoom gameRoom = roomManager.getRoomByRoomId(roomId);
+
+        if (!roomManager.turnChecker(session.getId(),gameRoom)) {
+            responseValue = 802;
+            messageProcessor.moveResopnse(session, responseValue)
+                    .doOnError(e -> log.error("move Request error \n" +e))
+                    .subscribe();
+            return;
+        }
+
+//        responseValue = roomManager.boardMoveRequest(boardMoveForm, gameRoom);
     }
 }

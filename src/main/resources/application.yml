@@ -18,7 +18,7 @@ logging:
 jwt:
   secretKey:
     ENC(KmqxTG8MaxW4NhHwIzB9gngw0LgN0SiRuts0b6CNZRx5pJWAo0d/U/VQ3H7buN0H0rUH5y7bUsuLwU5EOLSyeOnl/cXb1Dh9cEGZXaF0ic8=)
-  accessExpiration: 18000000
+  accessExpiration: 1800000000
   refreshExpiration: 604800000
 jasypt:
   encryptor:
