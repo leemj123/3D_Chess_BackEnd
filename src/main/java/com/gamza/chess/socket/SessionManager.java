@@ -4,10 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.gamza.chess.socket.dto.GameRoom;
 import com.gamza.chess.socket.dto.PieceLocation;
 import com.gamza.chess.socket.dto.SessionPair;
-import com.gamza.chess.socket.messageform.BoardMoveForm;
-import com.gamza.chess.socket.messageform.PieceInitSendForm;
-import com.gamza.chess.socket.messageform.PieceMoveForm;
-import com.gamza.chess.socket.messageform.SyncForm;
+import com.gamza.chess.socket.messageform.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -192,17 +189,17 @@ public class SessionManager {
         }
 
 
-        responseValue = roomManager.PieceMoveRequest( pieceMoveForm, gameRoom );
+        responseValue = roomManager.pieceMoveRequest( pieceMoveForm, gameRoom );
 
         messageProcessor.moveResopnse(session, responseValue)
                 .doOnError(e -> log.error("move Request error \n" +e))
                 .subscribe();
         if (gameRoom.getSessionPair().getWhite().getId().equals(session.getId())) {
-            messageProcessor.matcherSync(gameRoom.getSessionPair().getBlack(), new SyncForm(pieceMoveForm))
+            messageProcessor.matcherSync(gameRoom.getSessionPair().getBlack(), new PieceSyncForm(pieceMoveForm))
                     .doOnError(e -> log.error("move Request error \n" +e))
                     .subscribe();
         } else {
-            messageProcessor.matcherSync(gameRoom.getSessionPair().getWhite(), new SyncForm(pieceMoveForm))
+            messageProcessor.matcherSync(gameRoom.getSessionPair().getWhite(), new PieceSyncForm(pieceMoveForm))
                     .doOnError(e -> log.error("move Request error \n" +e))
                     .subscribe();
         }
@@ -233,6 +230,19 @@ public class SessionManager {
             return;
         }
 
-//        responseValue = roomManager.boardMoveRequest(boardMoveForm, gameRoom);
+        responseValue = roomManager.boardMoveRequest(gameRoom, boardMoveForm);
+
+        messageProcessor.moveResopnse(session, responseValue)
+                .doOnError(e -> log.error("move Request error \n" +e))
+                .subscribe();
+        if (gameRoom.getSessionPair().getWhite().getId().equals(session.getId())) {
+            messageProcessor.matcherSyncBoard(gameRoom.getSessionPair().getBlack(), new BoardSyncForm(boardMoveForm))
+                    .doOnError(e -> log.error("move Request error \n" +e))
+                    .subscribe();
+        } else {
+            messageProcessor.matcherSyncBoard(gameRoom.getSessionPair().getWhite(), new BoardSyncForm(boardMoveForm))
+                    .doOnError(e -> log.error("move Request error \n" +e))
+                    .subscribe();
+        }
     }
 }

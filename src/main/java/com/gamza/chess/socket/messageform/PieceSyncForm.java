@@ -8,7 +8,7 @@ import com.gamza.chess.Enum.ACTION;
 import lombok.Getter;
 
 @Getter
-public class SyncForm {
+public class PieceSyncForm {
     ACTION action;
     private final PieceType pieceType;
     private final Rank currentRank;
@@ -18,7 +18,7 @@ public class SyncForm {
     private final File toMoveFile;
     private final Level toMoveLevel;
 
-    public SyncForm (PieceMoveForm pieceMoveForm) {
+    public PieceSyncForm(PieceMoveForm pieceMoveForm) {
         action = ACTION.SYNC;
         pieceType = pieceMoveForm.getPieceType();
         currentRank = pieceMoveForm.getCurrentRank();

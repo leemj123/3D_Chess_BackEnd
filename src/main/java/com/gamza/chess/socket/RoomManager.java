@@ -1,10 +1,12 @@
 package com.gamza.chess.socket;
 
+import club.gamza.warpsquare.engine.BoardMove;
 import club.gamza.warpsquare.engine.PieceMove;
 import club.gamza.warpsquare.engine.Square;
 import com.gamza.chess.socket.dto.GameRoom;
 import com.gamza.chess.socket.dto.PieceLocation;
 import com.gamza.chess.socket.dto.SessionPair;
+import com.gamza.chess.socket.messageform.BoardMoveForm;
 import com.gamza.chess.socket.messageform.PieceMoveForm;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -59,7 +61,14 @@ public class RoomManager {
     }
 
     //========================
-    public int PieceMoveRequest(PieceMoveForm pieceMoveForm, GameRoom gameRoom) {
+    public int boardMoveRequest(GameRoom gameRoom, BoardMoveForm boardMoveForm) {
+
+        BoardMove boardMove = new BoardMove(boardMoveForm.getCurrentLevel(), boardMoveForm.getTargetLevel(), null);
+
+        return gameRoom.getGame().pushBoardMove(boardMove) ? 800 : 821;
+
+    }
+    public int pieceMoveRequest(PieceMoveForm pieceMoveForm, GameRoom gameRoom) {
         Square currentSquare = new Square(pieceMoveForm.getCurrentRank(), pieceMoveForm.getCurrentFile(), pieceMoveForm.getCurrentLevel());
         Square toMoveSquare = new Square(pieceMoveForm.getToMoveRank(), pieceMoveForm.getToMoveFile(), pieceMoveForm.getToMoveLevel());
         PieceMove enginPieceMove = new PieceMove(currentSquare, toMoveSquare, pieceMoveForm.getPieceType());
@@ -95,24 +104,6 @@ public class RoomManager {
 
         }
     }
-//    public void AttackBoardMove (GameRoom gameRoom) {
-//        gameRoom.getGame().pushBoardMove(BoardMove );
-//    }
 
-    private void logger(PieceMoveForm pieceMoveForm) {
-        log.info("type: " + pieceMoveForm.getPieceType() + "\n" + "currentLocation: "
-                + pieceMoveForm.getCurrentLevel()
-                + pieceMoveForm.getCurrentRank()
-                + pieceMoveForm.getCurrentFile()
-                + "\n\n toMoveLocation"
-                + pieceMoveForm.getToMoveLevel()
-                + pieceMoveForm.getToMoveRank()
-                + pieceMoveForm.getToMoveFile() + "\n\n"
-        );
-    }
 
-//    public int boardMoveRequest(BoardMoveForm boardMoveForm, GameRoom gameRoom) {
-//        BoardMove
-//        gameRoom.getGame().pushBoardMove()
-//    }
 }

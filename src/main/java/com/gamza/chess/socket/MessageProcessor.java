@@ -6,12 +6,8 @@ import com.gamza.chess.Enum.ACTION;
 import com.gamza.chess.Enum.Color;
 import com.gamza.chess.Enum.Tier;
 import com.gamza.chess.socket.dto.GameRoom;
-import com.gamza.chess.socket.dto.PieceLocation;
-import com.gamza.chess.socket.messageform.PieceInitSendForm;
-import com.gamza.chess.socket.messageform.RoomInfoForm;
+import com.gamza.chess.socket.messageform.*;
 import com.gamza.chess.socket.dto.SessionPair;
-import com.gamza.chess.socket.messageform.SyncForm;
-import com.gamza.chess.socket.messageform.WinForm;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.TextMessage;
@@ -19,7 +15,6 @@ import org.springframework.web.socket.WebSocketSession;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -108,14 +103,23 @@ public Mono<Void> roomInfoSender(GameRoom gameRoom) {
             return Mono.error(e);
         }
     }
-    public Mono<Void> matcherSync(WebSocketSession session, SyncForm syncForm) {
+    public Mono<Void> matcherSync(WebSocketSession session, PieceSyncForm pieceSyncForm) {
         try {
-            session.sendMessage(new TextMessage(objectMapper.writeValueAsString(syncForm)));
+            session.sendMessage(new TextMessage(objectMapper.writeValueAsString(pieceSyncForm)));
             return Mono.empty();
         }  catch (IOException e) {
             return Mono.error(e);
         }
     }
+    public Mono<Void> matcherSyncBoard(WebSocketSession session, BoardSyncForm boardSyncForm) {
+        try {
+            session.sendMessage(new TextMessage(objectMapper.writeValueAsString(boardSyncForm)));
+            return Mono.empty();
+        }  catch (IOException e) {
+            return Mono.error(e);
+        }
+    }
+
 
     public Mono<Void> jsonParesErrorSender(WebSocketSession session) {
         try {
